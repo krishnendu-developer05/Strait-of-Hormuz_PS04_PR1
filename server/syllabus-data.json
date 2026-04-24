@@ -1,0 +1,452 @@
+{
+  "CBSE": {
+    "1": {
+      "subjects": {
+        "English": {
+          "chapters": [
+            { "name": "Phonics and Basic Grammar", "keywords": ["phonics", "grammar"], "topics": ["letters", "sounds", "simple sentences"] },
+            { "name": "Reading and Storytelling", "keywords": ["story", "reading"], "topics": ["reading aloud", "picture reading", "story sequence"] }
+          ]
+        },
+        "Mathematics": {
+          "chapters": [
+            { "name": "Numbers up to 100", "keywords": ["numbers"], "topics": ["counting", "place value", "comparison"] },
+            { "name": "Shapes and Patterns", "keywords": ["shapes", "patterns"], "topics": ["2D shapes", "patterns", "sorting"] }
+          ]
+        },
+        "EVS": {
+          "chapters": [
+            { "name": "My Family and My Body", "keywords": ["family", "body"], "topics": ["family members", "body parts", "habits"] },
+            { "name": "Plants and Animals", "keywords": ["plants", "animals"], "topics": ["living things", "needs", "surroundings"] }
+          ]
+        }
+      }
+    },
+    "2": {
+      "subjects": {
+        "English": {
+          "chapters": [
+            { "name": "Vocabulary and Sentences", "keywords": ["vocabulary", "sentences"], "topics": ["naming words", "action words", "sentence making"] },
+            { "name": "Poems and Short Stories", "keywords": ["poem", "story"], "topics": ["reading", "speaking", "comprehension"] }
+          ]
+        },
+        "Mathematics": {
+          "chapters": [
+            { "name": "Numbers and Addition", "keywords": ["addition", "subtraction"], "topics": ["place value", "addition", "subtraction"] },
+            { "name": "Measurement and Time", "keywords": ["measurement", "time"], "topics": ["length", "weight", "time"] }
+          ]
+        },
+        "EVS": {
+          "chapters": [
+            { "name": "Food and Shelter", "keywords": ["food", "shelter"], "topics": ["healthy food", "homes", "safety"] },
+            { "name": "Travel and Nature", "keywords": ["travel", "nature"], "topics": ["transport", "weather", "plants"] }
+          ]
+        }
+      }
+    },
+    "3": {
+      "subjects": {
+        "English": {
+          "chapters": [
+            { "name": "Grammar and Composition", "keywords": ["grammar", "composition"], "topics": ["noun", "verb", "paragraph writing"] },
+            { "name": "Reading Skills", "keywords": ["reading"], "topics": ["comprehension", "story retelling", "word meaning"] }
+          ]
+        },
+        "Mathematics": {
+          "chapters": [
+            { "name": "Numbers and Operations", "keywords": ["numbers", "operations"], "topics": ["addition", "subtraction", "multiplication"] },
+            { "name": "Money, Time and Data", "keywords": ["money", "time", "data"], "topics": ["money", "clock", "graphs"] }
+          ]
+        },
+        "EVS": {
+          "chapters": [
+            { "name": "People and Work", "keywords": ["people", "work"], "topics": ["occupations", "community helpers", "family roles"] },
+            { "name": "Water and Environment", "keywords": ["water", "environment"], "topics": ["water sources", "cleanliness", "weather"] }
+          ]
+        }
+      }
+    },
+    "4": {
+      "subjects": {
+        "English": {
+          "chapters": [
+            { "name": "Grammar, Writing and Reading", "keywords": ["grammar", "writing"], "topics": ["tenses", "paragraphs", "reading comprehension"] }
+          ]
+        },
+        "Mathematics": {
+          "chapters": [
+            { "name": "Large Numbers and Fractions", "keywords": ["numbers", "fractions"], "topics": ["place value", "fractions", "word problems"] },
+            { "name": "Geometry and Measurement", "keywords": ["geometry", "measurement"], "topics": ["angles", "area", "perimeter"] }
+          ]
+        },
+        "EVS": {
+          "chapters": [
+            { "name": "Plants, Animals and Resources", "keywords": ["plants", "animals", "resources"], "topics": ["food chain", "soil", "water"] }
+          ]
+        }
+      }
+    },
+    "5": {
+      "subjects": {
+        "English": {
+          "chapters": [
+            { "name": "Reading, Grammar and Writing", "keywords": ["reading", "writing"], "topics": ["comprehension", "formal writing", "grammar rules"] }
+          ]
+        },
+        "Mathematics": {
+          "chapters": [
+            { "name": "Decimals and Fractions", "keywords": ["decimals", "fractions"], "topics": ["decimal operations", "fractions", "applications"] },
+            { "name": "Geometry and Data Handling", "keywords": ["geometry", "data"], "topics": ["angles", "shapes", "graphs"] }
+          ]
+        },
+        "EVS": {
+          "chapters": [
+            { "name": "Health, Environment and Society", "keywords": ["health", "environment"], "topics": ["nutrition", "pollution", "community"] }
+          ]
+        }
+      }
+    },
+    "6": {
+      "subjects": {
+        "English": {
+          "chapters": [
+            { "name": "Literature and Grammar", "keywords": ["literature", "grammar"], "topics": ["prose", "poetry", "sentence structure"] }
+          ]
+        },
+        "Mathematics": {
+          "chapters": [
+            { "name": "Knowing Our Numbers", "keywords": ["numbers"], "topics": ["whole numbers", "place value", "comparisons"] },
+            { "name": "Fractions and Decimals", "keywords": ["fractions", "decimals"], "topics": ["equivalent fractions", "decimal notation"] },
+            { "name": "Ratio and Proportion", "keywords": ["ratio", "proportion"], "topics": ["ratio", "unitary method"] }
+          ]
+        },
+        "Science": {
+          "chapters": [
+            { "name": "Food and Components", "keywords": ["food"], "topics": ["nutrients", "balanced diet"] },
+            { "name": "Sorting Materials", "keywords": ["materials"], "topics": ["properties", "solubility"] },
+            { "name": "Motion and Measurement", "keywords": ["motion", "measurement"], "topics": ["distance", "time", "standard units"] }
+          ]
+        },
+        "History": {
+          "chapters": [
+            { "name": "What, Where, How and When", "keywords": ["history"], "topics": ["sources", "timeline", "early humans"] }
+          ]
+        },
+        "Geography": {
+          "chapters": [
+            { "name": "The Earth in the Solar System", "keywords": ["earth", "solar system"], "topics": ["planets", "globe", "maps"] }
+          ]
+        }
+      }
+    },
+    "7": {
+      "subjects": {
+        "English": {
+          "chapters": [
+            { "name": "Reading and Writing Skills", "keywords": ["writing", "reading"], "topics": ["story", "letter", "grammar"] }
+          ]
+        },
+        "Mathematics": {
+          "chapters": [
+            { "name": "Integers", "keywords": ["integers"], "topics": ["addition", "subtraction", "number line"] },
+            { "name": "Simple Equations", "keywords": ["equations"], "topics": ["unknown variable", "balancing"] },
+            { "name": "Comparing Quantities", "keywords": ["profit", "loss", "percentage"], "topics": ["percentage", "profit and loss", "simple interest"] }
+          ]
+        },
+        "Science": {
+          "chapters": [
+            { "name": "Nutrition in Plants", "keywords": ["nutrition"], "topics": ["autotrophs", "heterotrophs"] },
+            { "name": "Acids, Bases and Salts", "keywords": ["acid", "base", "salt"], "topics": ["indicators", "neutralisation", "common uses"] },
+            { "name": "Heat", "keywords": ["heat"], "topics": ["conduction", "convection", "radiation"] }
+          ]
+        },
+        "History": {
+          "chapters": [
+            { "name": "Tracing Changes Through a Thousand Years", "keywords": ["changes"], "topics": ["medieval history", "sources"] }
+          ]
+        },
+        "Geography": {
+          "chapters": [
+            { "name": "Environment", "keywords": ["environment"], "topics": ["natural environment", "human environment"] }
+          ]
+        }
+      }
+    },
+    "8": {
+      "subjects": {
+        "English": {
+          "chapters": [
+            { "name": "Literature, Grammar and Composition", "keywords": ["composition", "grammar"], "topics": ["essay", "notice", "literary reading"] }
+          ]
+        },
+        "Mathematics": {
+          "chapters": [
+            { "name": "Rational Numbers", "keywords": ["rational numbers"], "topics": ["properties", "operations"] },
+            { "name": "Linear Equations in One Variable", "keywords": ["linear equation"], "topics": ["solving equations", "word problems"] },
+            { "name": "Mensuration", "keywords": ["mensuration"], "topics": ["area", "volume", "surface area"] }
+          ]
+        },
+        "Science": {
+          "chapters": [
+            { "name": "Crop Production and Management", "keywords": ["crop"], "topics": ["agriculture", "irrigation", "storage"] },
+            { "name": "Cell Structure and Functions", "keywords": ["cell"], "topics": ["cell organelles", "plant cell", "animal cell"] },
+            { "name": "Force and Pressure", "keywords": ["force", "pressure"], "topics": ["effects of force", "pressure in fluids"] }
+          ]
+        },
+        "History": {
+          "chapters": [
+            { "name": "How, When and Where", "keywords": ["history"], "topics": ["modern history", "colonial sources"] }
+          ]
+        },
+        "Geography": {
+          "chapters": [
+            { "name": "Resources", "keywords": ["resources"], "topics": ["types of resources", "conservation"] }
+          ]
+        }
+      }
+    },
+    "9": {
+      "subjects": {
+        "English": {
+          "chapters": [
+            { "name": "Beehive and Moments", "keywords": ["beehive", "moments"], "topics": ["prose", "poetry", "story analysis"] },
+            { "name": "Writing and Grammar", "keywords": ["writing", "grammar"], "topics": ["article", "descriptive paragraph", "tense"] }
+          ]
+        },
+        "Mathematics": {
+          "chapters": [
+            { "name": "Number Systems", "keywords": ["number systems"], "topics": ["real numbers", "irrational numbers", "representation on number line"] },
+            { "name": "Polynomials", "keywords": ["polynomials"], "topics": ["terms", "coefficients", "zeroes"] },
+            { "name": "Linear Equations in Two Variables", "keywords": ["linear equations"], "topics": ["graph", "solution", "pair of variables"] },
+            { "name": "Triangles", "keywords": ["triangles"], "topics": ["congruence", "properties", "proofs"] }
+          ]
+        },
+        "Science": {
+          "chapters": [
+            { "name": "Matter in Our Surroundings", "keywords": ["matter"], "topics": ["states of matter", "diffusion", "change of state"] },
+            { "name": "Is Matter Around Us Pure", "keywords": ["pure matter"], "topics": ["mixtures", "solutions", "separation"] },
+            { "name": "Atoms and Molecules", "keywords": ["atoms", "molecules"], "topics": ["laws of chemical combination", "mole concept"] },
+            { "name": "The Fundamental Unit of Life", "keywords": ["cell", "fundamental unit"], "topics": ["cell organelles", "prokaryotic and eukaryotic cells"] },
+            { "name": "Motion", "keywords": ["motion"], "topics": ["speed", "velocity", "acceleration", "graphs"] },
+            { "name": "Force and Laws of Motion", "keywords": ["force", "laws of motion"], "topics": ["newton laws", "momentum", "inertia"] }
+          ]
+        },
+        "History": {
+          "chapters": [
+            { "name": "The French Revolution", "keywords": ["french revolution"], "topics": ["causes", "events", "effects"] },
+            { "name": "Nazism and the Rise of Hitler", "keywords": ["nazism", "hitler"], "topics": ["germany", "hitler", "world war"] }
+          ]
+        },
+        "Geography": {
+          "chapters": [
+            { "name": "India Size and Location", "keywords": ["india size and location"], "topics": ["latitudes", "longitudes", "neighbours"] },
+            { "name": "Physical Features of India", "keywords": ["physical features"], "topics": ["mountains", "plateaus", "plains"] }
+          ]
+        }
+      }
+    },
+    "10": {
+      "subjects": {
+        "English": {
+          "chapters": [
+            { "name": "First Flight and Footprints Without Feet", "keywords": ["first flight", "footprints"], "topics": ["literature", "theme", "character"] },
+            { "name": "Writing and Grammar", "keywords": ["formal letter", "analytical paragraph"], "topics": ["formal letter", "paragraph", "editing"] }
+          ]
+        },
+        "Mathematics": {
+          "chapters": [
+            { "name": "Real Numbers", "keywords": ["real numbers"], "topics": ["euclid division lemma", "hcf", "lcm"] },
+            { "name": "Quadratic Equations", "keywords": ["quadratic equations"], "topics": ["factorisation", "formula", "roots"] },
+            { "name": "Arithmetic Progressions", "keywords": ["arithmetic progression"], "topics": ["nth term", "sum"] },
+            { "name": "Trigonometry", "keywords": ["trigonometry"], "topics": ["ratios", "identities", "heights and distances"] }
+          ]
+        },
+        "Science": {
+          "chapters": [
+            { "name": "Chemical Reactions and Equations", "keywords": ["chemical reactions"], "topics": ["types of reactions", "balancing equations"] },
+            { "name": "Acids, Bases and Salts", "keywords": ["acid", "base", "salt"], "topics": ["indicators", "pH scale", "salts", "common compounds"] },
+            { "name": "Life Processes", "keywords": ["life processes"], "topics": ["nutrition", "respiration", "transportation", "excretion"] },
+            { "name": "Electricity", "keywords": ["electricity"], "topics": ["current", "resistance", "ohm law", "power"] },
+            { "name": "Light Reflection and Refraction", "keywords": ["light", "reflection", "refraction"], "topics": ["mirror", "lens", "ray diagrams"] }
+          ]
+        },
+        "History": {
+          "chapters": [
+            { "name": "The Rise of Nationalism in Europe", "keywords": ["nationalism in europe"], "topics": ["nation state", "unification", "liberalism"] },
+            { "name": "Nationalism in India", "keywords": ["nationalism in india"], "topics": ["movement", "gandhi", "civil disobedience"] }
+          ]
+        },
+        "Geography": {
+          "chapters": [
+            { "name": "Resources and Development", "keywords": ["resources and development"], "topics": ["resource planning", "land resources", "soil"] },
+            { "name": "Forest and Wildlife Resources", "keywords": ["forest", "wildlife"], "topics": ["conservation", "biodiversity"] }
+          ]
+        }
+      }
+    }
+  },
+  "ICSE": {
+    "1": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Listening, Speaking and Reading", "keywords": ["reading"], "topics": ["phonics", "speaking", "story"] }] },
+        "Mathematics": { "chapters": [{ "name": "Numbers and Shapes", "keywords": ["numbers", "shapes"], "topics": ["counting", "patterns", "shapes"] }] },
+        "EVS": { "chapters": [{ "name": "My World", "keywords": ["family", "plants"], "topics": ["family", "home", "plants", "animals"] }] }
+      }
+    },
+    "2": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Words, Sentences and Stories", "keywords": ["sentences"], "topics": ["vocabulary", "storytelling"] }] },
+        "Mathematics": { "chapters": [{ "name": "Operations and Measurement", "keywords": ["operations"], "topics": ["addition", "subtraction", "measurement"] }] },
+        "EVS": { "chapters": [{ "name": "Home and Nature", "keywords": ["nature"], "topics": ["food", "water", "animals"] }] }
+      }
+    },
+    "3": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Reading and Grammar", "keywords": ["grammar"], "topics": ["sentence building", "reading"] }] },
+        "Mathematics": { "chapters": [{ "name": "Numbers and Time", "keywords": ["time"], "topics": ["multiplication", "division", "time"] }] },
+        "EVS": { "chapters": [{ "name": "People and Environment", "keywords": ["environment"], "topics": ["community", "plants", "cleanliness"] }] }
+      }
+    },
+    "4": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Grammar and Composition", "keywords": ["composition"], "topics": ["grammar", "paragraphs"] }] },
+        "Mathematics": { "chapters": [{ "name": "Fractions and Geometry", "keywords": ["fractions"], "topics": ["fractions", "shapes", "measurement"] }] },
+        "EVS": { "chapters": [{ "name": "Living World", "keywords": ["living world"], "topics": ["plants", "animals", "resources"] }] }
+      }
+    },
+    "5": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Literature and Language", "keywords": ["language"], "topics": ["reading", "grammar", "writing"] }] },
+        "Mathematics": { "chapters": [{ "name": "Decimals and Data", "keywords": ["decimals"], "topics": ["decimals", "data handling"] }] },
+        "EVS": { "chapters": [{ "name": "Health and Environment", "keywords": ["health"], "topics": ["health", "pollution", "safety"] }] }
+      }
+    },
+    "6": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Language Skills", "keywords": ["language"], "topics": ["reading", "writing", "grammar"] }] },
+        "Mathematics": { "chapters": [{ "name": "Whole Numbers and Fractions", "keywords": ["whole numbers"], "topics": ["operations", "fractions"] }] },
+        "Science": { "chapters": [{ "name": "Living and Non-Living", "keywords": ["living"], "topics": ["classification", "plants", "animals"] }] },
+        "History": { "chapters": [{ "name": "Early Civilisations", "keywords": ["civilisations"], "topics": ["ancient history", "sources"] }] },
+        "Geography": { "chapters": [{ "name": "Representation of the Earth", "keywords": ["earth"], "topics": ["globe", "maps"] }] }
+      }
+    },
+    "7": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Grammar and Literature", "keywords": ["literature"], "topics": ["prose", "poetry", "writing"] }] },
+        "Mathematics": { "chapters": [{ "name": "Integers and Algebra", "keywords": ["integers"], "topics": ["integers", "algebraic expressions"] }] },
+        "Science": { "chapters": [{ "name": "Physical and Chemical Changes", "keywords": ["chemical"], "topics": ["changes", "reactions"] }, { "name": "Acids, Bases and Salts", "keywords": ["acid", "base", "salt"], "topics": ["properties", "indicators", "neutralisation"] }] },
+        "History": { "chapters": [{ "name": "Medieval India", "keywords": ["medieval"], "topics": ["kingdoms", "society"] }] },
+        "Geography": { "chapters": [{ "name": "Our Environment", "keywords": ["environment"], "topics": ["natural environment", "conservation"] }] }
+      }
+    },
+    "8": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Language and Composition", "keywords": ["composition"], "topics": ["essay", "letter", "grammar"] }] },
+        "Mathematics": { "chapters": [{ "name": "Linear Equations and Mensuration", "keywords": ["linear equations", "mensuration"], "topics": ["equations", "area", "volume"] }] },
+        "Science": { "chapters": [{ "name": "Matter and Force", "keywords": ["matter", "force"], "topics": ["matter", "pressure", "work"] }, { "name": "Cell and Reproduction", "keywords": ["cell"], "topics": ["cell", "tissues"] }] },
+        "History": { "chapters": [{ "name": "Modern World", "keywords": ["modern"], "topics": ["renaissance", "industrial revolution"] }] },
+        "Geography": { "chapters": [{ "name": "Population and Migration", "keywords": ["population"], "topics": ["population", "migration", "settlements"] }] }
+      }
+    },
+    "9": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Drama, Prose and Poetry", "keywords": ["drama", "poetry"], "topics": ["literary analysis", "theme", "character"] }] },
+        "Mathematics": { "chapters": [{ "name": "Rational and Irrational Numbers", "keywords": ["irrational"], "topics": ["number system", "operations"] }, { "name": "Factorisation and Equations", "keywords": ["factorisation"], "topics": ["algebra", "identities"] }] },
+        "Science": { "chapters": [{ "name": "The Language of Chemistry", "keywords": ["chemistry"], "topics": ["symbols", "formulae", "valency"] }, { "name": "Matter and Energy", "keywords": ["matter", "energy"], "topics": ["states", "heat", "force"] }, { "name": "Cell and Tissue", "keywords": ["cell", "tissue"], "topics": ["cell structure", "tissue"] }] },
+        "History": { "chapters": [{ "name": "The Harappan Civilisation", "keywords": ["harappan"], "topics": ["civilisation", "town planning"] }] },
+        "Geography": { "chapters": [{ "name": "Earth as a Planet", "keywords": ["earth as a planet"], "topics": ["earth", "rotation", "revolution"] }] }
+      }
+    },
+    "10": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Drama, Prose, Poetry and Writing", "keywords": ["writing"], "topics": ["essay", "letter", "drama", "poetry"] }] },
+        "Mathematics": { "chapters": [{ "name": "Commercial Mathematics", "keywords": ["commercial"], "topics": ["gst", "banking", "shares"] }, { "name": "Quadratic Equations and Trigonometry", "keywords": ["quadratic", "trigonometry"], "topics": ["roots", "heights and distances"] }] },
+        "Science": { "chapters": [{ "name": "Periodic Table, Chemical Bonding and Acids Bases Salts", "keywords": ["periodic table", "acid", "base", "salt"], "topics": ["periodic table", "bonding", "properties", "pH"] }, { "name": "Force, Work, Energy, Electricity and Light", "keywords": ["electricity", "light"], "topics": ["work", "power", "electricity", "ray optics"] }, { "name": "Genetics and Human Evolution", "keywords": ["genetics"], "topics": ["inheritance", "evolution"] }] },
+        "History": { "chapters": [{ "name": "The First War of Independence", "keywords": ["first war of independence"], "topics": ["1857 revolt", "causes", "results"] }] },
+        "Geography": { "chapters": [{ "name": "Climate, Soil and Natural Vegetation", "keywords": ["climate", "soil"], "topics": ["climate", "soil", "vegetation"] }] }
+      }
+    }
+  },
+  "WBSE": {
+    "1": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Basic English", "keywords": ["english"], "topics": ["letters", "words", "simple reading"] }] },
+        "Mathematics": { "chapters": [{ "name": "Counting and Shapes", "keywords": ["counting"], "topics": ["numbers", "shapes", "patterns"] }] },
+        "EVS": { "chapters": [{ "name": "Amar Paribesh", "keywords": ["environment"], "topics": ["family", "plants", "animals"] }] }
+      }
+    },
+    "2": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Reading and Words", "keywords": ["reading"], "topics": ["vocabulary", "sentences"] }] },
+        "Mathematics": { "chapters": [{ "name": "Numbers and Time", "keywords": ["time"], "topics": ["operations", "time"] }] },
+        "EVS": { "chapters": [{ "name": "Nature Around Us", "keywords": ["nature"], "topics": ["water", "plants", "health"] }] }
+      }
+    },
+    "3": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Language Skills", "keywords": ["language"], "topics": ["reading", "grammar"] }] },
+        "Mathematics": { "chapters": [{ "name": "Basic Operations", "keywords": ["operations"], "topics": ["multiplication", "division"] }] },
+        "EVS": { "chapters": [{ "name": "Community and Environment", "keywords": ["community"], "topics": ["people", "environment"] }] }
+      }
+    },
+    "4": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Grammar and Reading", "keywords": ["grammar"], "topics": ["grammar", "comprehension"] }] },
+        "Mathematics": { "chapters": [{ "name": "Fractions and Measurement", "keywords": ["fractions"], "topics": ["fractions", "measurement"] }] },
+        "EVS": { "chapters": [{ "name": "Plants and Human Life", "keywords": ["plants"], "topics": ["plants", "food", "health"] }] }
+      }
+    },
+    "5": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Composition and Grammar", "keywords": ["composition"], "topics": ["writing", "grammar"] }] },
+        "Mathematics": { "chapters": [{ "name": "Decimals and Geometry", "keywords": ["decimals"], "topics": ["decimals", "geometry"] }] },
+        "EVS": { "chapters": [{ "name": "Environment and Society", "keywords": ["society"], "topics": ["health", "resources", "surroundings"] }] }
+      }
+    },
+    "6": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "English Reader and Grammar", "keywords": ["reader"], "topics": ["reading", "grammar", "writing"] }] },
+        "Mathematics": { "chapters": [{ "name": "Integers and Fractions", "keywords": ["integers"], "topics": ["integers", "fractions"] }] },
+        "Science": { "chapters": [{ "name": "Living World and Matter", "keywords": ["living world", "matter"], "topics": ["plants", "animals", "matter"] }] },
+        "History": { "chapters": [{ "name": "Ancient History", "keywords": ["ancient"], "topics": ["civilisation", "sources"] }] },
+        "Geography": { "chapters": [{ "name": "Earth and Maps", "keywords": ["maps"], "topics": ["earth", "globe", "maps"] }] }
+      }
+    },
+    "7": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Language and Literature", "keywords": ["literature"], "topics": ["poetry", "story", "grammar"] }] },
+        "Mathematics": { "chapters": [{ "name": "Algebra and Percentage", "keywords": ["percentage"], "topics": ["algebra", "ratio", "percentage"] }] },
+        "Science": { "chapters": [{ "name": "Matter, Acids and Bases", "keywords": ["acid", "base", "salt"], "topics": ["matter", "acid", "base", "salt", "indicators"] }] },
+        "History": { "chapters": [{ "name": "Medieval Bengal and India", "keywords": ["medieval"], "topics": ["medieval india", "bengal"] }] },
+        "Geography": { "chapters": [{ "name": "Natural Environment", "keywords": ["environment"], "topics": ["land", "water", "climate"] }] }
+      }
+    },
+    "8": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Reading, Writing and Grammar", "keywords": ["writing"], "topics": ["composition", "grammar"] }] },
+        "Mathematics": { "chapters": [{ "name": "Linear Equations and Mensuration", "keywords": ["linear equations", "mensuration"], "topics": ["equations", "area", "volume"] }] },
+        "Science": { "chapters": [{ "name": "Force, Cell and Environment", "keywords": ["force", "cell"], "topics": ["force", "cell", "ecosystem"] }] },
+        "History": { "chapters": [{ "name": "Modern India", "keywords": ["modern india"], "topics": ["colonial rule", "reform"] }] },
+        "Geography": { "chapters": [{ "name": "Resources and Population", "keywords": ["resources"], "topics": ["resources", "population"] }] }
+      }
+    },
+    "9": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Textbook, Grammar and Writing", "keywords": ["grammar"], "topics": ["literature", "grammar", "writing"] }] },
+        "Mathematics": { "chapters": [{ "name": "Number System and Algebra", "keywords": ["number system", "algebra"], "topics": ["real numbers", "algebra"] }, { "name": "Geometry and Mensuration", "keywords": ["geometry"], "topics": ["theorems", "mensuration"] }] },
+        "Science": { "chapters": [{ "name": "Matter, Cell and Motion", "keywords": ["matter", "cell", "motion"], "topics": ["matter", "cell", "motion"] }, { "name": "Atoms and Molecules", "keywords": ["atoms", "molecules"], "topics": ["atomic structure", "molecular mass"] }] },
+        "History": { "chapters": [{ "name": "The Age of Revolutions", "keywords": ["revolutions"], "topics": ["french revolution", "industrial revolution"] }] },
+        "Geography": { "chapters": [{ "name": "Earth and Physical Geography", "keywords": ["physical geography"], "topics": ["earth", "relief", "climate"] }] }
+      }
+    },
+    "10": {
+      "subjects": {
+        "English": { "chapters": [{ "name": "Literature, Language and Composition", "keywords": ["composition"], "topics": ["literature", "writing", "grammar"] }] },
+        "Mathematics": { "chapters": [{ "name": "Real Numbers, Quadratic Equations and Trigonometry", "keywords": ["quadratic", "trigonometry"], "topics": ["real numbers", "quadratic equations", "trigonometry"] }] },
+        "Science": { "chapters": [{ "name": "Acid Base Salt, Physical Science and Life Science", "keywords": ["acid", "base", "salt"], "topics": ["acid", "base", "salt", "electricity", "life processes"] }] },
+        "History": { "chapters": [{ "name": "Nationalism and Freedom Movement", "keywords": ["freedom movement"], "topics": ["nationalism", "independence", "leaders"] }] },
+        "Geography": { "chapters": [{ "name": "Environment, Resources and Regional Geography", "keywords": ["environment", "resources"], "topics": ["resources", "industry", "agriculture"] }] }
+      }
+    }
+  }
+}

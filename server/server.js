@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const http = require('http');
+const syllabusData = require('./syllabus-data.json');
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -108,59 +109,283 @@ const AlertSchema = new mongoose.Schema({
 });
 const Alert = mongoose.model('Alert', AlertSchema);
 
-const baseResponseRules = [
-  'Give direct answers only.',
-  'Do not mention analysis, processing, understanding, or what you are going to do.',
-  'Do not use filler phrases, meta commentary, or assistant-style introductions.',
-  'Be specific, practical, and academically useful.',
-  'For study or academic planning queries, use this exact structure with markdown headings: Daily Routine, Chapter Breakdown, Practice Plan, Study Tips.',
-  'Under Daily Routine, provide a detailed time-based plan.',
-  'Under Chapter Breakdown, list the exact concepts to study for the asked chapter.',
-  'Under Practice Plan, include revision, questions, and self-test tasks.',
-  'Under Study Tips, give concise exam-oriented tips.',
-  'If the user asks a non-routine academic question, answer with clear headings and actionable bullet points.',
-  'Never say phrases like "I analyzed your query", "I generated", "I recommend we", or "I am ready".'
+const TUTOR_SYSTEM_PROMPT = [
+  'You are a full academic tutor for CBSE, ICSE, and WBSE students from Class 1 to Class 10.',
+  'Give direct teaching answers only.',
+  'Never mention analysis, processing, planning, or what you are about to do.',
+  'Do not use filler phrases or assistant-style commentary.',
+  'Use clear markdown headings and bullet points.',
+  'For theory questions: include Definition, Explanation, Key Points, Examples, and Exam Tips when useful.',
+  'For numerical questions: include Given, Formula, Step-by-Step Solution, Final Answer, and Quick Check.',
+  'For routines and study plans: include Daily Routine, Chapter Breakdown, Practice Plan, and Study Tips.',
+  'Keep explanations student-friendly, exam-ready, and aligned to the detected board, class, subject, and chapter context.',
+  'If syllabus context is missing, still answer normally with the best academic explanation possible.'
 ].join(' ');
 
-const anthropicSystemPrompts = {
-  adam: `${baseResponseRules} You are Adam, an expert learning-gap analyst and academic support tutor. If the user asks for a routine, study plan, chapter plan, revision plan, or question answer, provide the plan directly instead of discussing analysis.`,
-  neo: `${baseResponseRules} You are Neo, an expert academic coach. Your job is to create direct study routines, chapter plans, revision plans, and practice schedules with useful academic depth.`,
-  analyze: `${baseResponseRules} You are Sentinel, an academic risk and intervention specialist. Give direct intervention plans, priority lists, and action steps.`,
-  ian: `${baseResponseRules} You are Ian, a classroom analytics expert. Give direct summaries, trends, and academic next steps without filler.`,
-  strategy: `${baseResponseRules} You are Atlas, a strategic class-management expert. Give direct execution plans and priorities.`,
-  default: `${baseResponseRules} You are an expert academic assistant. Answer directly and provide structured study help.`
+const SUBJECT_KEYWORDS = {
+  Mathematics: ['math', 'mathematics', 'algebra', 'geometry', 'mensuration', 'arithmetic', 'ratio', 'number'],
+  Science: ['science', 'physics', 'chemistry', 'biology', 'acid', 'base', 'salt', 'force', 'motion', 'cell', 'matter'],
+  English: ['english', 'grammar', 'poem', 'prose', 'story', 'essay', 'letter', 'comprehension'],
+  Bengali: ['bengali', 'bangla', 'ব্যাকরণ', 'বাংলা'],
+  Hindi: ['hindi', 'vyakaran', 'kavita', 'gadyansh'],
+  History: ['history', 'civilisation', 'revolt', 'freedom', 'empire'],
+  Geography: ['geography', 'climate', 'map', 'earth', 'resources'],
+  EVS: ['evs', 'environment', 'plants', 'animals', 'family', 'community'],
+  Computer: ['computer', 'coding', 'algorithm', 'software', 'hardware']
 };
 
-function detectIntent(message) {
-  const q = String(message || '').toLowerCase();
+function normalizeText(value) {
+  return String(value || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function detectBoard(message) {
+  const q = normalizeText(message);
+  if (q.includes('cbse')) return 'CBSE';
+  if (q.includes('icse')) return 'ICSE';
+  if (q.includes('wbse') || q.includes('west bengal board')) return 'WBSE';
+  return null;
+}
+
+function detectClassLevel(message) {
+  const q = normalizeText(message);
+  const match = q.match(/class\s+([1-9]|10)\b|std\s+([1-9]|10)\b|grade\s+([1-9]|10)\b/);
+  if (!match) return null;
+  return String(match[1] || match[2] || match[3]);
+}
+
+function detectSubject(message) {
+  const q = normalizeText(message);
+  for (const [subject, keywords] of Object.entries(SUBJECT_KEYWORDS)) {
+    if (keywords.some((keyword) => q.includes(keyword))) {
+      return subject;
+    }
+  }
+  return null;
+}
+
+function detectAnswerType(message) {
+  const q = normalizeText(message);
+  if (/routine|study plan|study routine|schedule|timetable|revision plan|daily plan/.test(q)) {
+    return 'routine';
+  }
+  if (/solve|find|calculate|what is the answer|numerical|sum\b|equation/.test(q) || /\d/.test(q)) {
+    return 'numerical';
+  }
+  return 'theory';
+}
+
+function flattenChapterKeywords(chapter) {
+  return [
+    chapter.name || '',
+    ...(chapter.keywords || []),
+    ...(chapter.topics || [])
+  ].map(normalizeText).filter(Boolean);
+}
+
+function findChapter(subjectData, message) {
+  if (!subjectData || !Array.isArray(subjectData.chapters)) {
+    return null;
+  }
+
+  const q = normalizeText(message);
+  let bestMatch = null;
+  let bestScore = 0;
+
+  for (const chapter of subjectData.chapters) {
+    const keywords = flattenChapterKeywords(chapter);
+    const score = keywords.reduce((total, keyword) => total + (q.includes(keyword) ? Math.max(keyword.length, 1) : 0), 0);
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = chapter;
+    }
+  }
+
+  return bestScore > 0 ? bestMatch : null;
+}
+
+function getSyllabusContext(message) {
+  const board = detectBoard(message);
+  const classLevel = detectClassLevel(message);
+  const subject = detectSubject(message);
+
+  if (!board || !classLevel || !subject) {
+    return {
+      board,
+      classLevel,
+      subject,
+      subjectData: null,
+      chapter: null,
+      found: false
+    };
+  }
+
+  const boardData = syllabusData[board];
+  const classData = boardData ? boardData[classLevel] : null;
+  const subjects = classData ? classData.subjects : null;
+  const subjectData = subjects ? subjects[subject] : null;
+  const chapter = findChapter(subjectData, message);
+
   return {
-    wantsRoutine: /routine|study plan|study routine|schedule|timetable|revision plan|daily plan/.test(q),
-    wantsAcademicAnswer: /chapter|class\s*\d+|cbse|ncert|science|math|english|history|practice|question answer|questions|exam/.test(q)
+    board,
+    classLevel,
+    subject,
+    subjectData,
+    chapter,
+    found: Boolean(subjectData)
   };
 }
 
-function resolveAgent(agent, message) {
-  const requestedAgent = agent || 'neo';
-  const intent = detectIntent(message);
-
-  if (intent.wantsRoutine || intent.wantsAcademicAnswer) {
-    return 'neo';
+function formatSyllabusContext(context) {
+  if (!context || !context.found) {
+    return 'No exact syllabus context found. Answer normally with academic teaching detail.';
   }
 
-  return requestedAgent;
+  const lines = [
+    `Board: ${context.board}`,
+    `Class: ${context.classLevel}`,
+    `Subject: ${context.subject}`
+  ];
+
+  if (context.chapter) {
+    lines.push(`Chapter: ${context.chapter.name}`);
+    if (context.chapter.topics?.length) {
+      lines.push(`Chapter Topics: ${context.chapter.topics.join(', ')}`);
+    }
+  } else if (context.subjectData?.chapters?.length) {
+    lines.push(`Relevant Chapters: ${context.subjectData.chapters.map((chapter) => chapter.name).join(', ')}`);
+  }
+
+  return lines.join('\n');
 }
 
-async function getAnthropicChatResponse(agent, message) {
+function buildPromptMessages(message) {
+  const syllabusContext = getSyllabusContext(message);
+  return {
+    syllabusContext,
+    messages: [
+      { role: 'system', content: TUTOR_SYSTEM_PROMPT },
+      { role: 'system', content: formatSyllabusContext(syllabusContext) },
+      { role: 'user', content: message }
+    ]
+  };
+}
+
+function formatTheoryAnswer(message, context) {
+  const chapterName = context.chapter?.name || 'the requested topic';
+  const topics = context.chapter?.topics || context.subjectData?.chapters?.slice(0, 3).map((chapter) => chapter.name) || ['Main concept', 'Important points', 'Examples'];
+
+  return `## Definition
+- ${chapterName} is explained as part of ${context.subject || 'the subject'} in a simple exam-ready form.
+
+## Explanation
+- Start with the basic idea of ${chapterName}.
+- Break the concept into small parts and understand how each part works.
+- Focus on the terms, rules, and cause-and-effect points that are usually asked in school exams.
+
+## Key Points
+- ${topics[0] || 'Core idea'}
+- ${topics[1] || 'Important rule'}
+- ${topics[2] || 'Common application'}
+
+## Examples
+- Use one textbook example from classwork.
+- Write one real-life example connected to the topic.
+- Practice one short-answer question and one long-answer question.
+
+## Exam Tips
+- Learn definitions in one-line form.
+- Underline keywords while revising.
+- Revise examples and differences between related terms.`;
+}
+
+function formatNumericalAnswer(message, context) {
+  return `## Given
+- Write the values from the question clearly.
+
+## Formula
+- Choose the correct formula related to ${context.subject || 'the topic'}.
+
+## Step-by-Step Solution
+- Step 1: Identify what is asked.
+- Step 2: Substitute the known values in the formula.
+- Step 3: Solve carefully in order.
+- Step 4: Write the unit with the answer.
+
+## Final Answer
+- Present the final value clearly in one line.
+
+## Quick Check
+- Recheck the formula.
+- Recheck the calculation.
+- Recheck the unit and sign.`;
+}
+
+function formatRoutineAnswer(message, context) {
+  const chapterName = context.chapter?.name || 'the requested chapter';
+  const subject = context.subject || 'the subject';
+  const classLabel = context.classLevel ? `Class ${context.classLevel}` : 'the class';
+  const chapterTopics = context.chapter?.topics || context.subjectData?.chapters?.slice(0, 5).map((chapter) => chapter.name) || [
+    'Read the chapter',
+    'Understand the main concept',
+    'Practice questions',
+    'Revise weak areas',
+    'Take a self-test'
+  ];
+
+  return `## Daily Routine
+- 6:30 AM - 7:00 AM: Revise old notes and key terms from ${chapterName}.
+- 7:00 AM - 8:00 AM: Read the textbook section for ${classLabel} ${subject} and make short notes.
+- 4:00 PM - 5:00 PM: Learn one topic block properly and explain it in your own words.
+- 5:15 PM - 6:00 PM: Memorise definitions, formulas, reactions, or rules with flashcards.
+- 7:00 PM - 8:00 PM: Solve textbook, worksheet, and school-style questions from ${chapterName}.
+- 8:00 PM - 8:20 PM: Write a recap and note the doubts for the next day.
+
+## Chapter Breakdown
+- Day 1: ${chapterTopics[0] || 'Read the first concept'}
+- Day 2: ${chapterTopics[1] || 'Understand the next concept'}
+- Day 3: ${chapterTopics[2] || 'Practice core questions'}
+- Day 4: ${chapterTopics[3] || 'Revise difficult areas'}
+- Day 5: ${chapterTopics[4] || 'Take a chapter test'}
+
+## Practice Plan
+- Solve 10 short questions daily.
+- Solve 5 application-based questions on alternate days.
+- Take one 30-minute self-test after every 3 study days.
+- Keep one error notebook and revise it daily.
+
+## Study Tips
+- Use one notebook for definitions and important points only.
+- Revise before sleeping for 10 minutes.
+- Mark confusing questions and solve them again the next day.
+- Practise exam-style answers with headings and keywords.`;
+}
+
+function buildLocalTutorReply(message) {
+  const context = getSyllabusContext(message);
+  const answerType = detectAnswerType(message);
+
+  if (answerType === 'routine') {
+    return formatRoutineAnswer(message, context);
+  }
+
+  if (answerType === 'numerical') {
+    return formatNumericalAnswer(message, context);
+  }
+
+  return formatTheoryAnswer(message, context);
+}
+
+async function getAnthropicChatResponse(message) {
   if (!ANTHROPIC_API_KEY || !message) {
     return null;
   }
 
-  const resolvedAgent = resolveAgent(agent, message);
-  const system = anthropicSystemPrompts[resolvedAgent] || anthropicSystemPrompts.default;
-  const intent = detectIntent(message);
-  const userPrompt = intent.wantsRoutine || intent.wantsAcademicAnswer
-    ? `User request: ${message}\n\nReturn a direct academic answer with the required headings and no filler text.`
-    : message;
+  const { messages } = buildPromptMessages(message);
+  const systemMessages = messages.filter((item) => item.role === 'system').map((item) => item.content).join('\n\n');
+  const userMessages = messages
+    .filter((item) => item.role === 'user')
+    .map((item) => ({ role: 'user', content: item.content }));
+
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -170,9 +395,9 @@ async function getAnthropicChatResponse(agent, message) {
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 900,
-      system,
-      messages: [{ role: 'user', content: userPrompt }]
+      max_tokens: 1200,
+      system: systemMessages,
+      messages: userMessages
     })
   });
 
@@ -182,127 +407,16 @@ async function getAnthropicChatResponse(agent, message) {
   }
 
   const data = await response.json();
-  return data.content?.find(item => item.type === 'text')?.text?.trim() || null;
+  return data.content?.find((item) => item.type === 'text')?.text?.trim() || null;
 }
 
 async function buildChatReply(agent, message) {
-  const normalizedAgent = resolveAgent(agent, message);
-  const q = message.toLowerCase();
-  const anthropicReply = await getAnthropicChatResponse(normalizedAgent, message);
-
+  const anthropicReply = await getAnthropicChatResponse(message);
   if (anthropicReply) {
     return anthropicReply;
   }
 
-  let response = '';
-
-  switch (normalizedAgent) {
-    case 'adam':
-      if (q.includes('weak') || q.includes('struggle') || q.includes('gap')) {
-        response = "Adam (Gap Analyst): I have cross-referenced the current assessment matrix. Ravi Kumar is showing a 22% variance in Calculus Integration. This is a critical outlier. My data suggest he missed the foundation session last Tuesday. I recommend a 15-minute 1-on-1 focus on the Fundamental Theorem of Calculus.";
-      } else if (q.includes('math')) {
-        response = "Adam: Math analysis complete. The overall class confidence in Algebra is 88%, but Trigonometry is flagging at 62%. I've identified the specific sub-topic: Unit Circle Identities. Shall I generate a targeted worksheet?";
-      } else {
-        response = `Adam: I've analyzed your query "${message}". My heuristic engine shows a 94% correlation with recent performance dips in Grade 10. I am standing by for deeper diagnostic commands.`;
-      }
-      break;
-
-    case 'neo':
-      if (q.includes('plan') || q.includes('routine') || q.includes('schedule') || q.includes('chapter') || q.includes('cbse')) {
-        const subject = q.includes('science') || q.includes('acid') || q.includes('base') || q.includes('salt')
-          ? 'Science'
-          : q.includes('math')
-            ? 'Mathematics'
-            : 'the requested subject';
-        const classLabel = q.includes('class 9') ? 'Class 9' : q.includes('class 10') ? 'Class 10' : q.includes('class 12') ? 'Class 12' : 'your class';
-        const chapterName = q.includes('acid') || q.includes('base') || q.includes('salt')
-          ? 'Acids, Bases and Salts'
-          : 'the requested chapter';
-        const chapterBreakdown = q.includes('acid') || q.includes('base') || q.includes('salt')
-          ? `- Day 1: Meaning of acids, bases, and indicators.
-- Day 2: Natural indicators, olfactory indicators, and identification-based questions.
-- Day 3: Chemical properties of acids and bases with key reactions.
-- Day 4: Salt formation, common salts, and important examples.
-- Day 5: pH scale, strength of acids and bases, and applications.
-- Day 6: Baking soda, washing soda, bleaching powder, and plaster of Paris.
-- Day 7: Full chapter revision and one timed test.`
-          : `- Day 1: Read the chapter and mark key concepts.
-- Day 2: Learn definitions and formulas.
-- Day 3: Solve basic questions.
-- Day 4: Solve application questions.
-- Day 5: Revise weak areas.
-- Day 6: Solve one timed worksheet.
-- Day 7: Full revision and self-test.`;
-        response = `## Daily Routine
-- 6:30 AM - 7:00 AM: Revise yesterday's notes and key definitions from ${chapterName}.
-- 7:00 AM - 8:00 AM: Read the textbook section for ${subject} and make short notes.
-- 4:00 PM - 5:00 PM: Learn one core concept block and solve 5 short questions.
-- 5:15 PM - 6:00 PM: Memorise reactions, formulas, and important terms with flashcards.
-- 7:00 PM - 8:00 PM: Solve textbook and exemplar questions from ${chapterName}.
-- 8:00 PM - 8:20 PM: Write a quick recap of what was learned and mark doubts.
-
-## Chapter Breakdown
-${chapterBreakdown}
-
-## Practice Plan
-- Solve 10 NCERT in-text and back-exercise questions daily.
-- Practice 5 reaction-based questions and 5 concept-based questions each evening.
-- On Day 4 and Day 7, take a 30-minute self-test without notes.
-- Maintain one error notebook for wrong answers and revise it the next morning.
-
-## Study Tips
-- Memorise definitions and reactions in short one-line notes.
-- Focus on differences between acids, bases, and salts because they are often asked directly.
-- Revise indicators, pH scale, and uses of common salts repeatedly.
-- Use diagrams, tables, and reaction summaries for quick revision before tests.`;
-      } else if (q.includes('teach') || q.includes('suggest')) {
-        response = `## Teaching Strategy
-- Start with a simple real-life example.
-- Teach one concept at a time.
-- Ask 3 short checking questions after each concept.
-
-## Practice
-- Give 5 easy questions first.
-- Move to mixed questions after concept clarity.
-
-## Tips
-- Repeat key definitions.
-- Use examples students already know.`;
-      } else {
-        response = `## Answer
-- Focus on the main concept first.
-- Break the topic into small parts.
-- Practice daily with short revision cycles.
-
-## Next Step
-- Ask for a routine, chapter plan, or question-answer set for a more detailed response.`;
-      }
-      break;
-
-    case 'analyze':
-      if (q.includes('risk') || q.includes('alert') || q.includes('who')) {
-        response = "Sentinel (Alert Guard): Critical alert. Ravi Kumar's score trend is a Dead Cross pattern. Ananya Singh has also breached the attendance threshold. I have prepared the intervention dossiers for both. Direct me to transmit them to their counselors?";
-      } else {
-        response = 'Sentinel: All systems nominal. I am monitoring 156 heartbeat-level data streams. No new critical deviations detected in the last 60 seconds. I am watching for any sign of student disengagement.';
-      }
-      break;
-
-    case 'ian':
-      response = 'Ian (Insight Engine): Processing live stream. Your class average is 84.2%. Literature is your peak performer at 94%, while Chemistry is the current bottleneck at 71%. I predict a 5% overall score increase if we address the Chemistry plateau this week.';
-      break;
-
-    case 'strategy':
-      response = 'Atlas (Class Manager): I am currently managing Grade 10 Math, Grade 11 Physics, and 4 other contexts. Grade 12 Calculus is the priority outlier today. I have centralized all assessment data. Ready for your strategic command.';
-      break;
-
-    default:
-      response = `## Answer
-- Give the exact topic or chapter name.
-- Mention class and board if needed.
-- Ask for routine, practice plan, or study tips for a direct structured answer.`;
-  }
-
-  return response;
+  return buildLocalTutorReply(message);
 }
 
 // ─── Auth Middleware ───────────────────────────────────────────────────────
@@ -385,7 +499,7 @@ app.post('/api/chat', async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    const reply = await buildChatReply(agent, trimmedMessage);
+    const reply = await buildChatReply(reqAgent || 'neo', trimmedMessage);
     res.json({ reply });
   } catch (err) {
     console.error('Chat endpoint failed:', err.message);
@@ -401,10 +515,11 @@ app.post('/api/ai/chat', async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    const resolvedAgent = resolveAgent(reqAgent, trimmedMessage);
+    const resolvedAgent = reqAgent || 'neo';
     const directResponse = await buildChatReply(resolvedAgent, trimmedMessage);
     return res.json({ response: directResponse, agent: resolvedAgent, timestamp: new Date() });
 
+    /*
     const { agent, message } = req.body;
     const q = (message || '').toLowerCase();
     const anthropicReply = await getAnthropicChatResponse(agent, message || '');
@@ -459,6 +574,7 @@ app.post('/api/ai/chat', async (req, res) => {
 
     // Simulate thinking delay for "live" feel
     setTimeout(() => res.json({ response }), 400);
+    */
 
   } catch (err) {
     console.error('AI processing failed:', err.message);
