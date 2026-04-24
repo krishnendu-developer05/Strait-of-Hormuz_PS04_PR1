@@ -15,7 +15,23 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
-app.use(cors());
+const allowedOrigins = new Set([
+  'http://127.0.0.1:5500',
+  'http://localhost:5500',
+  'http://localhost:3000'
+]);
+
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.has(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
@@ -23,6 +39,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'edunova_secret_2024';
 const MONGODB_URI = process.env.MONGODB_URI;
 const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 // ─── Razorpay Initialization ───────────────────────────────────────────────
 let razorpay;
@@ -90,6 +107,100 @@ const AlertSchema = new mongoose.Schema({
   resolved: { type: Boolean, default: false }
 });
 const Alert = mongoose.model('Alert', AlertSchema);
+
+const anthropicSystemPrompts = {
+  adam: 'You are Adam, an expert learning-gap analyst for teachers. Give concise, data-driven teaching guidance focused on diagnosing weaknesses and next interventions.',
+  neo: 'You are Neo, an expert AI teaching coach for EduNova AI. Help teachers with routines, lesson plans, and practical classroom strategies. Keep responses concise, specific, and actionable.',
+  analyze: 'You are Sentinel, an academic risk and alert specialist. Focus on identifying risk, intervention urgency, and concrete next steps.',
+  ian: 'You are Ian, a classroom analytics expert. Summarize trends, bottlenecks, and likely outcomes in a clear, concise way.',
+  strategy: 'You are Atlas, a strategic class-management expert. Help teachers prioritize effort across classes and recommend the highest-leverage actions.',
+  default: 'You are an expert teaching assistant for EduNova AI. Help teachers analyze student performance and recommend concrete, concise next steps.'
+};
+
+async function getAnthropicChatResponse(agent, message) {
+  if (!ANTHROPIC_API_KEY || !message) {
+    return null;
+  }
+
+  const system = anthropicSystemPrompts[agent] || anthropicSystemPrompts.default;
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 500,
+      system,
+      messages: [{ role: 'user', content: message }]
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Anthropic API error: ${response.status} ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data.content?.find(item => item.type === 'text')?.text?.trim() || null;
+}
+
+async function buildChatReply(agent, message) {
+  const normalizedAgent = agent || 'neo';
+  const q = message.toLowerCase();
+  const anthropicReply = await getAnthropicChatResponse(normalizedAgent, message);
+
+  if (anthropicReply) {
+    return anthropicReply;
+  }
+
+  let response = '';
+
+  switch (normalizedAgent) {
+    case 'adam':
+      if (q.includes('weak') || q.includes('struggle') || q.includes('gap')) {
+        response = "Adam (Gap Analyst): I have cross-referenced the current assessment matrix. Ravi Kumar is showing a 22% variance in Calculus Integration. This is a critical outlier. My data suggest he missed the foundation session last Tuesday. I recommend a 15-minute 1-on-1 focus on the Fundamental Theorem of Calculus.";
+      } else if (q.includes('math')) {
+        response = "Adam: Math analysis complete. The overall class confidence in Algebra is 88%, but Trigonometry is flagging at 62%. I've identified the specific sub-topic: Unit Circle Identities. Shall I generate a targeted worksheet?";
+      } else {
+        response = `Adam: I've analyzed your query "${message}". My heuristic engine shows a 94% correlation with recent performance dips in Grade 10. I am standing by for deeper diagnostic commands.`;
+      }
+      break;
+
+    case 'neo':
+      if (q.includes('plan') || q.includes('routine') || q.includes('schedule')) {
+        response = 'Neo (Tutor Bot): Optimized learning path generated. I recommend a staggered repetition model for next week. Mon/Wed: Direct instruction. Tue/Thu: Active recall labs. I have already synced this with the student calendars.';
+      } else if (q.includes('teach') || q.includes('suggest')) {
+        response = "Neo: For the current topic, I suggest the Feynman Technique. I can generate simplified analogies for the complex concepts to help the lower-quartile students catch up. Would you like the Einstein-Simple explanation pack?";
+      } else {
+        response = `Neo: Interesting pedagogical challenge. For "${message}", I recommend we lean into Inquiry-Based Learning. I have 3 specific Socratic questions ready to trigger deep thinking in your next session.`;
+      }
+      break;
+
+    case 'analyze':
+      if (q.includes('risk') || q.includes('alert') || q.includes('who')) {
+        response = "Sentinel (Alert Guard): Critical alert. Ravi Kumar's score trend is a Dead Cross pattern. Ananya Singh has also breached the attendance threshold. I have prepared the intervention dossiers for both. Direct me to transmit them to their counselors?";
+      } else {
+        response = 'Sentinel: All systems nominal. I am monitoring 156 heartbeat-level data streams. No new critical deviations detected in the last 60 seconds. I am watching for any sign of student disengagement.';
+      }
+      break;
+
+    case 'ian':
+      response = 'Ian (Insight Engine): Processing live stream. Your class average is 84.2%. Literature is your peak performer at 94%, while Chemistry is the current bottleneck at 71%. I predict a 5% overall score increase if we address the Chemistry plateau this week.';
+      break;
+
+    case 'strategy':
+      response = 'Atlas (Class Manager): I am currently managing Grade 10 Math, Grade 11 Physics, and 4 other contexts. Grade 12 Calculus is the priority outlier today. I have centralized all assessment data. Ready for your strategic command.';
+      break;
+
+    default:
+      response = `EduNova AI: I am processing your request about "${message}". As a multi-agent system, I am collaborating across my 6 cores to provide the best instructional support. How can I assist you further?`;
+  }
+
+  return response;
+}
 
 // ─── Auth Middleware ───────────────────────────────────────────────────────
 const authMiddleware = (req, res, next) => {
@@ -161,6 +272,87 @@ app.post('/api/students', authMiddleware, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ─── AI Chat Endpoint ────────────────────────────────────────────────────────
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { agent, message } = req.body || {};
+    const trimmedMessage = String(message || '').trim();
+
+    if (!trimmedMessage) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    const reply = await buildChatReply(agent, trimmedMessage);
+    res.json({ reply });
+  } catch (err) {
+    console.error('Chat endpoint failed:', err.message);
+    res.status(500).json({ error: 'Chat endpoint failed' });
+  }
+});
+
+app.post('/api/ai/chat', async (req, res) => {
+  try {
+    const { agent, message } = req.body;
+    const q = (message || '').toLowerCase();
+    const anthropicReply = await getAnthropicChatResponse(agent, message || '');
+
+    if (anthropicReply) {
+      return res.json({ response: anthropicReply, agent, timestamp: new Date() });
+    }
+    
+    // High-Level Agent Intelligence Logic
+    let response = "";
+    
+    switch(agent) {
+      case 'adam':
+        if (q.includes('weak') || q.includes('struggle') || q.includes('gap')) {
+          response = "🧩 **Adam (Gap Analyst):** I have cross-referenced the current assessment matrix. **Ravi Kumar** is showing a 22% variance in Calculus Integration. This is a critical outlier. My data suggest he missed the foundation session last Tuesday. I recommend a 15-minute 1-on-1 focus on the Fundamental Theorem of Calculus.";
+        } else if (q.includes('math')) {
+          response = "🧩 **Adam:** Math analysis complete. The overall class confidence in Algebra is 88%, but Trigonometry is flagging at 62%. I've identified the specific sub-topic: 'Unit Circle Identities'. Shall I generate a targeted worksheet?";
+        } else {
+          response = `🧩 **Adam:** I've analyzed your query "${message}". My heuristic engine shows a 94% correlation with recent performance dips in Grade 10. I am standing by for deeper diagnostic commands.`;
+        }
+        break;
+        
+      case 'neo':
+        if (q.includes('plan') || q.includes('routine') || q.includes('schedule')) {
+          response = "📚 **Neo (Tutor Bot):** Optimized learning path generated. I recommend a **staggered repetition** model for next week. Mon/Wed: Direct instruction. Tue/Thu: Active recall labs. I've already synced this with the student calendars.";
+        } else if (q.includes('teach') || q.includes('suggest')) {
+          response = "📚 **Neo:** For the current topic, I suggest the **Feynman Technique**. I can generate simplified analogies for the complex concepts to help the lower-quartile students catch up. Would you like the 'Einstein-Simple' explanation pack?";
+        } else {
+          response = `📚 **Neo:** Interesting pedagogical challenge. For "${message}", I recommend we lean into **Inquiry-Based Learning**. I have 3 specific Socratic questions ready to trigger deep thinking in your next session.`;
+        }
+        break;
+        
+      case 'analyze':
+        if (q.includes('risk') || q.includes('alert') || q.includes('who')) {
+          response = "🚨 **Sentinel (Alert Guard):** **CRITICAL ALERT.** Ravi Kumar's score trend is a 'Dead Cross' pattern. Ananya Singh has also breached the attendance threshold. I have prepared the intervention dossiers for both. Direct me to transmit to their counselors?";
+        } else {
+          response = "🚨 **Sentinel:** All systems nominal. I am monitoring 156 heartbeat-level data streams. No new critical deviations detected in the last 60 seconds. I am watching for any sign of student disengagement.";
+        }
+        break;
+        
+      case 'ian':
+        response = `📊 **Ian (Insight Engine):** Processing live stream... Your class average is 84.2%. **Literature** is your peak performer (94%), while **Chemistry** is the current bottleneck (71%). I predict a 5% overall score increase if we address the Chemistry plateau this week.`;
+        break;
+        
+      case 'strategy':
+        response = `🏫 **Atlas (Class Manager):** I am currently managing Grade 10 Math, Grade 11 Physics, and 4 other contexts. Grade 12 Calculus is the priority outlier today. I've centralized all assessment data. Ready for your strategic command.`;
+        break;
+
+      default:
+        response = `🤖 **EduNova AI:** I am processing your request about "${message}". As a multi-agent system, I am collaborating across my 6 cores to provide the best instructional support. How can I assist you further?`;
+    }
+
+    // Simulate thinking delay for "live" feel
+    setTimeout(() => res.json({ response }), 400);
+
+  } catch (err) {
+    console.error('AI processing failed:', err.message);
+    res.status(500).json({ error: 'AI processing failed' });
+  }
+});
+
 // ─── CLASSES ROUTES ──────────────────────────────────────────────────────
 app.get('/api/classes', authMiddleware, async (req, res) => {
   try {
@@ -213,11 +405,6 @@ const aiResponses = {
   strategy: (query) => `🏫 **Atlas: Global Command**\n\nI have centralized all class contexts. Grade 10 Chemistry is the priority outlier. I am ready to sync instructional goals.`
 };
 
-app.post('/api/ai/chat', authMiddleware, (req, res) => {
-  const { agent, message } = req.body;
-  const response = aiResponses[agent] ? aiResponses[agent](message) : "I'm here to assist you with student learning analytics.";
-  res.json({ response, agent, timestamp: new Date() });
-});
 
 // ─── PAYMENTS (RAZORPAY) ──────────────────────────────────────────────────
 app.post('/api/payments/create-order', authMiddleware, async (req, res) => {
@@ -288,4 +475,3 @@ app.get('*', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`\n🎓 EduNova AI running at http://localhost:${PORT}\n`));
-
