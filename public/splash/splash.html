@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EduNova AI — Welcome</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;700;900&display=swap');
+html,body{width:100%;height:100%;overflow:hidden;background:#0A0E1A;font-family:'Outfit',sans-serif;}
+canvas{position:fixed;inset:0;z-index:0;}
+.splash-content{
+  position:fixed;inset:0;z-index:10;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  pointer-events:none;
+}
+.logo-wrap{text-align:center;animation:fadeUp 1s ease 0.5s both;}
+.logo-icon{
+  width:90px;height:90px;margin:0 auto 20px;
+  background:linear-gradient(135deg,#6C63FF,#00D4FF);
+  border-radius:24px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:44px;
+  box-shadow:0 0 60px rgba(108,99,255,0.5);
+  animation:glow 3s ease-in-out infinite;
+}
+.logo-title{font-size:52px;font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,#8B85FF,#00D4FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo-sub{font-size:16px;color:rgba(255,255,255,0.5);margin-top:8px;letter-spacing:4px;text-transform:uppercase;}
+.tagline{margin-top:20px;font-size:18px;color:rgba(255,255,255,0.7);font-weight:300;animation:fadeUp 1s ease 0.9s both;}
+.progress-wrap{margin-top:48px;width:280px;animation:fadeUp 1s ease 1.1s both;}
+.progress-track{height:4px;background:rgba(255,255,255,0.1);border-radius:99px;overflow:hidden;}
+.progress-bar{height:100%;width:0;background:linear-gradient(90deg,#6C63FF,#00D4FF);border-radius:99px;transition:width 0.1s linear;}
+.progress-text{text-align:center;margin-top:12px;font-size:13px;color:rgba(255,255,255,0.4);}
+.particles-info{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);text-align:center;z-index:10;}
+.particles-info p{font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:2px;text-transform:uppercase;}
+.version{position:fixed;top:24px;right:24px;font-size:12px;color:rgba(255,255,255,0.2);z-index:10;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+@keyframes glow{0%,100%{box-shadow:0 0 40px rgba(108,99,255,0.4);}50%{box-shadow:0 0 80px rgba(108,99,255,0.7),0 0 120px rgba(0,212,255,0.3);}}
+@keyframes fadeOut{to{opacity:0;}}
+.fade-out{animation:fadeOut 0.8s ease forwards;}
+</style>
+</head>
+<body>
+<canvas id="splashCanvas"></canvas>
+
+<div class="splash-content" id="splashContent">
+  <div class="logo-wrap">
+    <div class="logo-icon">🎓</div>
+    <div class="logo-title">EduNova AI</div>
+    <div class="logo-sub">TeacherFlow Intelligence Platform</div>
+  </div>
+  <div class="tagline">Intelligent Learning. Measurable Results.</div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="progress-text" id="progressText">Initializing AI systems...</div>
+  </div>
+</div>
+
+<div class="version">v2.0.0</div>
+<div class="particles-info"><p>Powered by AI · Built for Educators</p></div>
+
+<script>
+// ── Three.js Neural Network via CDN ──
+const script = document.createElement('script');
+script.src = 'https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js';
+script.onload = initThree;
+document.head.appendChild(script);
+
+function initThree() {
+  const canvas = document.getElementById('splashCanvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 5;
+
+  // Nodes
+  const nodeCount = 80;
+  const nodePositions = [];
+  const nodeMeshes = [];
+  const nodeGeo = new THREE.SphereGeometry(0.04, 8, 8);
+
+  for (let i = 0; i < nodeCount; i++) {
+    const mat = new THREE.MeshBasicMaterial({
+      color: Math.random() > 0.5 ? 0x6C63FF : Math.random() > 0.5 ? 0x00D4FF : 0x00E5A0,
+      transparent: true, opacity: Math.random() * 0.7 + 0.3
+    });
+    const mesh = new THREE.Mesh(nodeGeo, mat);
+    const pos = new THREE.Vector3(
+      (Math.random() - 0.5) * 12,
+      (Math.random() - 0.5) * 8,
+      (Math.random() - 0.5) * 6
+    );
+    mesh.position.copy(pos);
+    nodePositions.push(pos);
+    nodeMeshes.push(mesh);
+    scene.add(mesh);
+  }
+
+  // Connections
+  const lineMat = new THREE.LineBasicMaterial({ color: 0x6C63FF, transparent: true, opacity: 0.15 });
+  for (let i = 0; i < nodeCount; i++) {
+    for (let j = i + 1; j < nodeCount; j++) {
+      if (nodePositions[i].distanceTo(nodePositions[j]) < 2.5) {
+        const geo = new THREE.BufferGeometry().setFromPoints([nodePositions[i], nodePositions[j]]);
+        scene.add(new THREE.Line(geo, lineMat));
+      }
+    }
+  }
+
+  // Particles
+  const partGeo = new THREE.BufferGeometry();
+  const partCount = 300;
+  const positions = new Float32Array(partCount * 3);
+  for (let i = 0; i < partCount * 3; i++) positions[i] = (Math.random() - 0.5) * 20;
+  partGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const partMat = new THREE.PointsMaterial({ color: 0x8B85FF, size: 0.02, transparent: true, opacity: 0.4 });
+  scene.add(new THREE.Points(partGeo, partMat));
+
+  // Animate
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.005;
+    scene.rotation.y = t * 0.3;
+    scene.rotation.x = Math.sin(t * 0.5) * 0.1;
+    nodeMeshes.forEach((m, i) => { m.position.y += Math.sin(t + i) * 0.001; });
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+}
+
+// ── Progress Bar ──
+const msgs = ['Initializing AI systems...','Loading student models...','Connecting analytics engine...','Preparing dashboard...','Almost ready...'];
+const bar = document.getElementById('progressBar');
+const txt = document.getElementById('progressText');
+let pct = 0;
+const iv = setInterval(() => {
+  pct += Math.random() * 4 + 1;
+  if (pct >= 100) { pct = 100; clearInterval(iv); }
+  bar.style.width = pct + '%';
+  txt.textContent = msgs[Math.min(Math.floor(pct / 25), msgs.length - 1)];
+  if (pct >= 100) {
+    txt.textContent = '✨ Ready! Launching EduNova AI...';
+    setTimeout(() => {
+      document.getElementById('splashContent').classList.add('fade-out');
+      setTimeout(() => { window.location.href = '/auth/login.html'; }, 800);
+    }, 600);
+  }
+}, 60);
+</script>
+</body>
+</html>

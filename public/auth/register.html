@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EduNova AI — Register</title>
+<link rel="stylesheet" href="/assets/css/global.css"/>
+<link rel="stylesheet" href="/assets/css/animations.css"/>
+<style>
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden;padding:40px 20px;}
+.auth-bg{position:fixed;inset:0;z-index:0;}
+.auth-bg::before{content:'';position:absolute;top:-30%;right:-20%;width:60%;height:60%;background:radial-gradient(circle,rgba(0,229,160,0.1),transparent 70%);}
+.auth-bg::after{content:'';position:absolute;bottom:-30%;left:-20%;width:60%;height:60%;background:radial-gradient(circle,rgba(108,99,255,0.12),transparent 70%);}
+.dot-pattern{position:fixed;inset:0;z-index:0;background-image:radial-gradient(circle,rgba(108,99,255,0.1) 1px,transparent 1px);background-size:32px 32px;}
+.auth-card{position:relative;z-index:10;width:100%;max-width:560px;background:var(--surface);border:1px solid var(--border);border-radius:28px;padding:44px;animation:scaleIn 0.5s ease;box-shadow:0 40px 80px rgba(0,0,0,0.4),0 0 60px rgba(0,229,160,0.08);}
+.auth-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
+.auth-logo .icon{width:44px;height:44px;background:linear-gradient(135deg,#6C63FF,#00D4FF);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.auth-logo .name{font-size:22px;font-weight:900;background:linear-gradient(135deg,#8B85FF,#00D4FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.auth-head{margin-bottom:28px;}
+.auth-head h1{font-size:28px;font-weight:800;margin-bottom:6px;}
+.auth-head p{color:var(--text2);font-size:14px;}
+.steps{display:flex;gap:8px;margin-bottom:28px;}
+.step{flex:1;height:4px;border-radius:99px;background:var(--surface2);transition:background 0.4s;}
+.step.done{background:linear-gradient(90deg,var(--primary),var(--accent));}
+.step.active{background:var(--primary);opacity:0.7;}
+.frow2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.fgroup{display:flex;flex-direction:column;gap:7px;margin-bottom:18px;}
+.fgroup label{font-size:13px;font-weight:600;color:var(--text2);}
+.input-wrap{position:relative;}
+.input-wrap .input-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:17px;}
+.fgroup input,.fgroup select{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px 12px 40px;color:var(--text);font-size:14px;transition:all 0.25s;}
+.fgroup select{padding-left:14px;}
+.fgroup input:focus,.fgroup select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(108,99,255,0.12);}
+.fgroup input::placeholder{color:var(--text3);}
+.fgroup select option{background:var(--surface);}
+.plan-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
+.plan-card{padding:16px 12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;text-align:center;cursor:pointer;transition:all 0.25s;}
+.plan-card:hover,.plan-card.selected{border-color:var(--primary);background:rgba(108,99,255,0.1);}
+.plan-card .plan-icon{font-size:26px;margin-bottom:8px;}
+.plan-card .plan-name{font-size:13px;font-weight:700;margin-bottom:4px;}
+.plan-card .plan-price{font-size:12px;color:var(--primary-light);font-weight:600;}
+.btn-auth{width:100%;padding:15px;background:linear-gradient(135deg,#6C63FF,#00D4FF);color:#fff;border-radius:14px;font-size:15px;font-weight:700;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;border:none;margin-top:4px;}
+.btn-auth:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(108,99,255,0.4);}
+.terms{font-size:12px;color:var(--text3);text-align:center;margin-top:16px;}
+.terms a{color:var(--primary-light);}
+.auth-switch{text-align:center;margin-top:16px;font-size:14px;color:var(--text2);}
+.auth-switch a{color:var(--primary-light);font-weight:700;}
+.theme-corner{position:fixed;top:24px;right:24px;z-index:100;width:42px;height:42px;background:var(--surface);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;transition:all 0.25s;}
+</style>
+</head>
+<body>
+<div class="auth-bg"></div>
+<div class="dot-pattern"></div>
+<button class="theme-corner" id="themeBtn" onclick="toggleThemeLocal()">🌙</button>
+
+<div class="auth-card">
+  <div class="auth-logo">
+    <div class="icon">🎓</div>
+    <div>
+      <div class="name">EduNova AI</div>
+    </div>
+  </div>
+  <div class="auth-head">
+    <h1>Create your account ✨</h1>
+    <p>Join thousands of educators transforming learning with AI</p>
+  </div>
+  <div class="steps">
+    <div class="step active" id="s1"></div>
+    <div class="step" id="s2"></div>
+    <div class="step" id="s3"></div>
+  </div>
+
+  <form id="regForm" onsubmit="handleRegister(event)">
+    <!-- Step 1 -->
+    <div id="step1">
+      <div class="frow2">
+        <div class="fgroup">
+          <label>First Name</label>
+          <div class="input-wrap"><span class="input-icon">👤</span><input type="text" id="firstName" placeholder="Sarah" required/></div>
+        </div>
+        <div class="fgroup">
+          <label>Last Name</label>
+          <div class="input-wrap"><span class="input-icon">👤</span><input type="text" id="lastName" placeholder="Mitchell" required/></div>
+        </div>
+      </div>
+      <div class="fgroup">
+        <label>Email Address</label>
+        <div class="input-wrap"><span class="input-icon">✉️</span><input type="email" id="regEmail" placeholder="you@school.edu" required/></div>
+      </div>
+      <div class="fgroup">
+        <label>Password</label>
+        <div class="input-wrap"><span class="input-icon">🔒</span><input type="password" id="regPass" placeholder="Min. 8 characters" required/></div>
+      </div>
+      <div class="frow2">
+        <div class="fgroup">
+          <label>Role</label>
+          <select id="role">
+            <option value="teacher">👩‍🏫 Teacher</option>
+            <option value="admin">🏫 School Admin</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <label>Institution</label>
+          <div class="input-wrap"><span class="input-icon">🏛️</span><input type="text" id="institution" placeholder="School / University"/></div>
+        </div>
+      </div>
+      <button type="button" class="btn-auth" onclick="goStep(2)">Continue →</button>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="step2" style="display:none;">
+      <p style="font-size:15px;font-weight:700;margin-bottom:16px;">Choose your plan</p>
+      <div class="plan-cards">
+        <div class="plan-card selected" id="plan-starter" onclick="selectPlan('starter')">
+          <div class="plan-icon">🌱</div>
+          <div class="plan-name">Starter</div>
+          <div class="plan-price">Free forever</div>
+        </div>
+        <div class="plan-card" id="plan-pro" onclick="selectPlan('pro')">
+          <div class="plan-icon">⚡</div>
+          <div class="plan-name">Pro</div>
+          <div class="plan-price">₹999/month</div>
+        </div>
+        <div class="plan-card" id="plan-institution" onclick="selectPlan('institution')">
+          <div class="plan-icon">🏛️</div>
+          <div class="plan-name">Institution</div>
+          <div class="plan-price">₹4,999/month</div>
+        </div>
+      </div>
+      <div class="fgroup">
+        <label>Subject(s) you teach</label>
+        <div class="input-wrap"><span class="input-icon">📚</span><input type="text" id="subjects" placeholder="Math, Physics, Chemistry..."/></div>
+      </div>
+      <div class="fgroup">
+        <label>Number of students (approx.)</label>
+        <div class="input-wrap"><span class="input-icon">👥</span><input type="number" id="studentCount" placeholder="e.g. 120"/></div>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <button type="button" class="btn-auth" style="background:var(--surface2);color:var(--text);flex:0.5;" onclick="goStep(1)">← Back</button>
+        <button type="button" class="btn-auth" onclick="goStep(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div id="step3" style="display:none;">
+      <p style="font-size:15px;font-weight:700;margin-bottom:16px;">🎉 Almost there! Review & Create Account</p>
+      <div id="reviewBox" style="background:var(--surface2);border-radius:14px;padding:20px;margin-bottom:20px;font-size:14px;line-height:2;color:var(--text2);"></div>
+      <button type="submit" class="btn-auth" id="createBtn">
+        <span id="createText">🚀 Create Account</span>
+      </button>
+      <div class="terms">By creating an account you agree to our <a href="#">Terms</a> & <a href="#">Privacy Policy</a></div>
+    </div>
+  </form>
+
+  <div class="auth-switch">Already have an account? <a href="/auth/login.html">Sign in</a></div>
+</div>
+
+<script src="/assets/js/utils.js"></script>
+<script>
+let selectedPlan = 'starter';
+function selectPlan(p) {
+  selectedPlan = p;
+  ['starter','pro','institution'].forEach(pl => document.getElementById('plan-'+pl).classList.toggle('selected', pl===p));
+}
+function goStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('step'+i).style.display = i===n ? 'block' : 'none';
+    const s = document.getElementById('s'+i);
+    s.className = 'step' + (i<n ? ' done' : i===n ? ' active' : '');
+  });
+  if (n===3) {
+    const name = document.getElementById('firstName').value + ' ' + document.getElementById('lastName').value;
+    const email = document.getElementById('regEmail').value;
+    const role = document.getElementById('role').value;
+    document.getElementById('reviewBox').innerHTML = `<b>Name:</b> ${name}<br><b>Email:</b> ${email}<br><b>Role:</b> ${role}<br><b>Plan:</b> ${selectedPlan.charAt(0).toUpperCase()+selectedPlan.slice(1)}<br><b>Institution:</b> ${document.getElementById('institution').value||'—'}`;
+  }
+}
+function toggleThemeLocal() {
+  toggleTheme();
+  document.getElementById('themeBtn').textContent = localStorage.getItem('edunova_theme')==='light'?'🌙':'☀️';
+}
+async function handleRegister(e) {
+  e.preventDefault();
+  document.getElementById('createText').textContent = 'Creating account...';
+  document.getElementById('createBtn').disabled = true;
+  try {
+    const name = document.getElementById('firstName').value + ' ' + document.getElementById('lastName').value;
+    const data = await apiCall('/auth/register','POST',{
+      name, email: document.getElementById('regEmail').value,
+      password: document.getElementById('regPass').value,
+      role: document.getElementById('role').value
+    });
+    localStorage.setItem('edunova_token', data.token);
+    localStorage.setItem('edunova_user', JSON.stringify(data.user));
+    showToast('Account created! Welcome to EduNova AI 🎓','success');
+    setTimeout(()=>{ window.location.href='/dashboard/index.html'; }, 900);
+  } catch(err) {
+    showToast(err.message||'Registration failed','error');
+    document.getElementById('createText').textContent = '🚀 Create Account';
+    document.getElementById('createBtn').disabled = false;
+  }
+}
+initTheme();
+document.getElementById('themeBtn').textContent = localStorage.getItem('edunova_theme')==='light'?'🌙':'☀️';
+</script>
+</body>
+</html>
