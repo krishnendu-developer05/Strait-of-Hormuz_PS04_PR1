@@ -108,21 +108,59 @@ const AlertSchema = new mongoose.Schema({
 });
 const Alert = mongoose.model('Alert', AlertSchema);
 
+const baseResponseRules = [
+  'Give direct answers only.',
+  'Do not mention analysis, processing, understanding, or what you are going to do.',
+  'Do not use filler phrases, meta commentary, or assistant-style introductions.',
+  'Be specific, practical, and academically useful.',
+  'For study or academic planning queries, use this exact structure with markdown headings: Daily Routine, Chapter Breakdown, Practice Plan, Study Tips.',
+  'Under Daily Routine, provide a detailed time-based plan.',
+  'Under Chapter Breakdown, list the exact concepts to study for the asked chapter.',
+  'Under Practice Plan, include revision, questions, and self-test tasks.',
+  'Under Study Tips, give concise exam-oriented tips.',
+  'If the user asks a non-routine academic question, answer with clear headings and actionable bullet points.',
+  'Never say phrases like "I analyzed your query", "I generated", "I recommend we", or "I am ready".'
+].join(' ');
+
 const anthropicSystemPrompts = {
-  adam: 'You are Adam, an expert learning-gap analyst for teachers. Give concise, data-driven teaching guidance focused on diagnosing weaknesses and next interventions.',
-  neo: 'You are Neo, an expert AI teaching coach for EduNova AI. Help teachers with routines, lesson plans, and practical classroom strategies. Keep responses concise, specific, and actionable.',
-  analyze: 'You are Sentinel, an academic risk and alert specialist. Focus on identifying risk, intervention urgency, and concrete next steps.',
-  ian: 'You are Ian, a classroom analytics expert. Summarize trends, bottlenecks, and likely outcomes in a clear, concise way.',
-  strategy: 'You are Atlas, a strategic class-management expert. Help teachers prioritize effort across classes and recommend the highest-leverage actions.',
-  default: 'You are an expert teaching assistant for EduNova AI. Help teachers analyze student performance and recommend concrete, concise next steps.'
+  adam: `${baseResponseRules} You are Adam, an expert learning-gap analyst and academic support tutor. If the user asks for a routine, study plan, chapter plan, revision plan, or question answer, provide the plan directly instead of discussing analysis.`,
+  neo: `${baseResponseRules} You are Neo, an expert academic coach. Your job is to create direct study routines, chapter plans, revision plans, and practice schedules with useful academic depth.`,
+  analyze: `${baseResponseRules} You are Sentinel, an academic risk and intervention specialist. Give direct intervention plans, priority lists, and action steps.`,
+  ian: `${baseResponseRules} You are Ian, a classroom analytics expert. Give direct summaries, trends, and academic next steps without filler.`,
+  strategy: `${baseResponseRules} You are Atlas, a strategic class-management expert. Give direct execution plans and priorities.`,
+  default: `${baseResponseRules} You are an expert academic assistant. Answer directly and provide structured study help.`
 };
+
+function detectIntent(message) {
+  const q = String(message || '').toLowerCase();
+  return {
+    wantsRoutine: /routine|study plan|study routine|schedule|timetable|revision plan|daily plan/.test(q),
+    wantsAcademicAnswer: /chapter|class\s*\d+|cbse|ncert|science|math|english|history|practice|question answer|questions|exam/.test(q)
+  };
+}
+
+function resolveAgent(agent, message) {
+  const requestedAgent = agent || 'neo';
+  const intent = detectIntent(message);
+
+  if (intent.wantsRoutine || intent.wantsAcademicAnswer) {
+    return 'neo';
+  }
+
+  return requestedAgent;
+}
 
 async function getAnthropicChatResponse(agent, message) {
   if (!ANTHROPIC_API_KEY || !message) {
     return null;
   }
 
-  const system = anthropicSystemPrompts[agent] || anthropicSystemPrompts.default;
+  const resolvedAgent = resolveAgent(agent, message);
+  const system = anthropicSystemPrompts[resolvedAgent] || anthropicSystemPrompts.default;
+  const intent = detectIntent(message);
+  const userPrompt = intent.wantsRoutine || intent.wantsAcademicAnswer
+    ? `User request: ${message}\n\nReturn a direct academic answer with the required headings and no filler text.`
+    : message;
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -132,9 +170,9 @@ async function getAnthropicChatResponse(agent, message) {
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 500,
+      max_tokens: 900,
       system,
-      messages: [{ role: 'user', content: message }]
+      messages: [{ role: 'user', content: userPrompt }]
     })
   });
 
@@ -148,7 +186,7 @@ async function getAnthropicChatResponse(agent, message) {
 }
 
 async function buildChatReply(agent, message) {
-  const normalizedAgent = agent || 'neo';
+  const normalizedAgent = resolveAgent(agent, message);
   const q = message.toLowerCase();
   const anthropicReply = await getAnthropicChatResponse(normalizedAgent, message);
 
@@ -170,15 +208,65 @@ async function buildChatReply(agent, message) {
       break;
 
     case 'neo':
-      if (q.includes('plan') || q.includes('routine') || q.includes('schedule')) {
-        const morningFocus = q.includes('math') ? 'Mathematics problem-solving' : q.includes('science') ? 'Science concept review' : 'Core subject revision';
-        const middayFocus = q.includes('exam') ? 'Timed practice and past-paper work' : q.includes('weak') ? 'Weak-area drills and guided correction' : 'Practice sets and active recall';
-        const eveningFocus = q.includes('class 10') ? 'Grade 10 homework and recap' : q.includes('class 12') ? 'Board-exam depth revision' : 'Reflection and next-day planning';
-        response = `Neo (Tutor Bot): I generated a practical routine for "${message}". 6:30 AM - 7:00 AM: Light review and daily goals. 7:00 AM - 8:00 AM: ${morningFocus}. 4:00 PM - 5:00 PM: ${middayFocus}. 5:15 PM - 6:00 PM: Flashcards and revision. 7:00 PM - 8:00 PM: ${eveningFocus}. 8:00 PM - 8:20 PM: Quick recap and tomorrow plan.`;
+      if (q.includes('plan') || q.includes('routine') || q.includes('schedule') || q.includes('chapter') || q.includes('cbse')) {
+        const subject = q.includes('science') || q.includes('acid') || q.includes('base') || q.includes('salt')
+          ? 'Science'
+          : q.includes('math')
+            ? 'Mathematics'
+            : 'the requested subject';
+        const classLabel = q.includes('class 9') ? 'Class 9' : q.includes('class 10') ? 'Class 10' : q.includes('class 12') ? 'Class 12' : 'your class';
+        const chapterName = q.includes('acid') || q.includes('base') || q.includes('salt')
+          ? 'Acids, Bases and Salts'
+          : 'the requested chapter';
+        response = `## Daily Routine
+- 6:30 AM - 7:00 AM: Revise yesterday's notes and key definitions from ${chapterName}.
+- 7:00 AM - 8:00 AM: Read the textbook section for ${subject} and make short notes.
+- 4:00 PM - 5:00 PM: Learn one core concept block and solve 5 short questions.
+- 5:15 PM - 6:00 PM: Memorise reactions, formulas, and important terms with flashcards.
+- 7:00 PM - 8:00 PM: Solve textbook and exemplar questions from ${chapterName}.
+- 8:00 PM - 8:20 PM: Write a quick recap of what was learned and mark doubts.
+
+## Chapter Breakdown
+- Day 1: Meaning of acids and bases, indicators, examples from daily life.
+- Day 2: Natural indicators, olfactory indicators, and how to identify acidic and basic substances.
+- Day 3: Chemical properties of acids and bases, important reactions, and observation-based questions.
+- Day 4: How salts are formed, common salts, and uses of salts in real life.
+- Day 5: pH scale, strength of acids and bases, and applications of pH.
+- Day 6: Important compounds in the chapter such as baking soda, washing soda, bleaching powder, and plaster of Paris.
+- Day 7: Full chapter revision for ${classLabel} ${subject}.
+
+## Practice Plan
+- Solve 10 NCERT in-text and back-exercise questions daily.
+- Practice 5 reaction-based questions and 5 concept-based questions each evening.
+- On Day 4 and Day 7, take a 30-minute self-test without notes.
+- Maintain one error notebook for wrong answers and revise it the next morning.
+
+## Study Tips
+- Memorise definitions and reactions in short one-line notes.
+- Focus on differences between acids, bases, and salts because they are often asked directly.
+- Revise indicators, pH scale, and uses of common salts repeatedly.
+- Use diagrams, tables, and reaction summaries for quick revision before tests.`;
       } else if (q.includes('teach') || q.includes('suggest')) {
-        response = "Neo: For the current topic, I suggest the Feynman Technique. I can generate simplified analogies for the complex concepts to help the lower-quartile students catch up. Would you like the Einstein-Simple explanation pack?";
+        response = `## Teaching Strategy
+- Start with a simple real-life example.
+- Teach one concept at a time.
+- Ask 3 short checking questions after each concept.
+
+## Practice
+- Give 5 easy questions first.
+- Move to mixed questions after concept clarity.
+
+## Tips
+- Repeat key definitions.
+- Use examples students already know.`;
       } else {
-        response = `Neo: Interesting pedagogical challenge. For "${message}", I recommend we lean into Inquiry-Based Learning. I have 3 specific Socratic questions ready to trigger deep thinking in your next session.`;
+        response = `## Answer
+- Focus on the main concept first.
+- Break the topic into small parts.
+- Practice daily with short revision cycles.
+
+## Next Step
+- Ask for a routine, chapter plan, or question-answer set for a more detailed response.`;
       }
       break;
 
@@ -199,7 +287,10 @@ async function buildChatReply(agent, message) {
       break;
 
     default:
-      response = `EduNova AI: I am processing your request about "${message}". As a multi-agent system, I am collaborating across my 6 cores to provide the best instructional support. How can I assist you further?`;
+      response = `## Answer
+- Give the exact topic or chapter name.
+- Mention class and board if needed.
+- Ask for routine, practice plan, or study tips for a direct structured answer.`;
   }
 
   return response;
