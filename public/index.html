@@ -3274,6 +3274,186 @@
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAgent(); });
   </script>
 
+  <script>
+    (() => {
+      function buildRoutineReply(q) {
+        const ql = String(q).toLowerCase();
+        const morningFocus = ql.includes('math') ? 'Mathematics problem-solving' : ql.includes('science') ? 'Science concept review' : 'Core subject revision';
+        const middayFocus = ql.includes('exam') ? 'Timed practice and past-paper work' : ql.includes('weak') ? 'Weak-area drills and guided correction' : 'Practice sets and active recall';
+        const eveningFocus = ql.includes('class 10') ? 'Grade 10 homework and recap' : ql.includes('class 12') ? 'Board-exam depth revision' : 'Reflection, recap, and planning';
+
+        return `Neo: I generated a practical routine for "${q}".\n\n6:30 AM - 7:00 AM: Light review and daily goals\n7:00 AM - 8:00 AM: ${morningFocus}\n4:00 PM - 5:00 PM: ${middayFocus}\n5:15 PM - 6:00 PM: Short break plus revision flashcards\n7:00 PM - 8:00 PM: ${eveningFocus}\n8:00 PM - 8:20 PM: Quick recap and tomorrow plan\n\nIf you want, I can turn this into a morning-only, school-day, or exam-week routine next.`;
+      }
+
+      const localAgentResponses = {
+        adam(q) {
+          const ql = String(q).toLowerCase();
+          if (ql.includes('weak') || ql.includes('gap') || ql.includes('struggl')) {
+            return `Adam: I found the main weak areas for "${q}".\n\n1. Calculus Integration\n2. Trigonometry identities\n3. Multi-step algebra simplification\n\nNext step: run a short diagnostic quiz, then group students by the exact concept they are missing.`;
+          }
+          return `Adam: I analyzed "${q}" and can help you identify who is struggling, which topics are weak, and what intervention to run next.`;
+        },
+        neo(q) {
+          const ql = String(q).toLowerCase();
+          if (ql.includes('routine') || ql.includes('plan') || ql.includes('schedule') || ql.includes('timetable')) {
+            return buildRoutineReply(q);
+          }
+          return `Neo: I can help with "${q}". Ask me for a routine, lesson plan, strategy, or study schedule and I will generate it for you.`;
+        },
+        analyze(q) {
+          const ql = String(q).toLowerCase();
+          if (ql.includes('risk') || ql.includes('alert')) {
+            return 'Sentinel: I flagged two priority students and one medium-risk group. I recommend parent outreach, attendance follow-up, and a 3-day review plan.';
+          }
+          return `Sentinel: I am monitoring "${q}" for alerts, performance drops, and intervention triggers.`;
+        },
+        ian(q) {
+          const ql = String(q).toLowerCase();
+          if (ql.includes('overview') || ql.includes('trend')) {
+            return 'Ian: Class overview ready.\n\nAverage score: 84.2%\nTop subject: Literature\nCurrent bottleneck: Chemistry\nSuggested next action: add one focused review block this week.';
+          }
+          return `Ian: I can summarize trends, class performance, and forecast likely outcomes for "${q}".`;
+        },
+        strategy(q) {
+          return `Atlas: I can help prioritize your classes, compare cohorts, and build a practical teaching plan for "${q}".`;
+        }
+      };
+
+      window.appendAgentMsg = function (text, sender, icon = 'AI') {
+        const log = document.getElementById('agent-chat-log');
+        const isAI = sender === 'ai';
+        const div = document.createElement('div');
+        div.style.cssText = `display:flex;gap:12px;align-items:flex-start;${!isAI ? 'flex-direction:row-reverse;' : ''}max-width:90%;${!isAI ? 'align-self:flex-end;' : ''}`;
+        const avatarColor = isAI ? 'linear-gradient(135deg,var(--accent),var(--accent2))' : 'var(--dim)';
+        const bubbleBg = isAI ? 'rgba(108,99,255,0.1)' : 'var(--glass)';
+        const bubbleBorder = isAI ? 'rgba(108,99,255,0.25)' : 'var(--border)';
+        const avatarContent = isAI ? icon : 'You';
+        div.innerHTML = `
+    <div style="width:36px;height:36px;border-radius:10px;background:${avatarColor};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${avatarContent}</div>
+    <div style="background:${bubbleBg};border:1px solid ${bubbleBorder};border-radius:14px;padding:13px 16px;font-size:14px;line-height:1.75;color:var(--text);white-space:pre-wrap;word-break:break-word;max-width:100%;"></div>`;
+        log.appendChild(div);
+        div.querySelector('div:last-child').textContent = text;
+        log.scrollTop = log.scrollHeight;
+        return div.querySelector('div:last-child');
+      };
+
+      window.appendTyping = function (icon) {
+        const log = document.getElementById('agent-chat-log');
+        const id = 'typing-' + Date.now();
+        const div = document.createElement('div');
+        div.id = id;
+        div.style.cssText = 'display:flex;gap:12px;align-items:flex-start;';
+        div.innerHTML = `
+    <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${icon}</div>
+    <div style="background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.25);border-radius:14px;padding:13px 16px;">
+      <div style="display:flex;gap:5px;align-items:center;">
+        <span style="width:7px;height:7px;background:var(--muted);border-radius:50%;animation:bounce 1.2s infinite;"></span>
+        <span style="width:7px;height:7px;background:var(--muted);border-radius:50%;animation:bounce 1.2s infinite;animation-delay:0.2s;"></span>
+        <span style="width:7px;height:7px;background:var(--muted);border-radius:50%;animation:bounce 1.2s infinite;animation-delay:0.4s;"></span>
+      </div>
+    </div>`;
+        log.appendChild(div);
+        log.scrollTop = log.scrollHeight;
+        return id;
+      };
+
+      window.closeAgent = function () {
+        document.getElementById('agent-modal').style.display = 'none';
+        document.body.style.overflow = '';
+      };
+
+      window.quickAgentMsg = function (text) {
+        document.getElementById('agent-input').value = text;
+        window.sendAgentMsg();
+      };
+
+      window.openAgent = function (type, name, icon, role, greeting) {
+        window.currentAgent = type;
+        document.getElementById('agent-modal-icon').textContent = icon;
+        document.getElementById('agent-modal-name').textContent = name;
+        document.getElementById('agent-modal-role').textContent = role;
+
+        const log = document.getElementById('agent-chat-log');
+        log.innerHTML = '';
+        window.appendAgentMsg(greeting, 'ai', icon);
+
+        const prompts = {
+          adam: ['Who is struggling most?', 'Show me all learning gaps', 'Analyze Math weaknesses'],
+          neo: ['Give me a routine', 'Generate a lesson plan', 'Suggest strategies'],
+          analyze: ['Show active alerts', 'Who is at risk?', 'Analyze trends'],
+          ian: ['Class overview', 'Performance trends', 'Predict next month scores'],
+          strategy: ['Compare all classes', 'Generate global report', 'Prioritize my focus']
+        };
+
+        const qp = document.getElementById('agent-quick-prompts');
+        qp.innerHTML = (prompts[type] || []).map((p) => {
+          const escaped = p.replace(/'/g, "\\'");
+          return `<button onclick="quickAgentMsg('${escaped}')" style="background:var(--glass);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--muted);cursor:pointer;font-family:var(--font-body);transition:all 0.2s;white-space:nowrap;" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--accent)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">${p}</button>`;
+        }).join('');
+
+        const input = document.getElementById('agent-input');
+        input.value = '';
+        input.placeholder = type === 'neo'
+          ? 'Type something like: give me routine for Class 10 math'
+          : `Ask ${name.split(' ')[0]} anything...`;
+
+        document.getElementById('agent-modal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        input.focus();
+      };
+
+      window.sendAgentMsg = async function () {
+        const input = document.getElementById('agent-input');
+        const q = input.value.trim();
+        if (!q) return;
+
+        const icon = document.getElementById('agent-modal-icon').textContent;
+        window.appendAgentMsg(q, 'user');
+        input.value = '';
+        input.style.height = 'auto';
+        const typingId = window.appendTyping(icon);
+
+        try {
+          if (typeof window.requestChatReply !== 'function') {
+            throw new Error('requestChatReply is not available');
+          }
+
+          const fullText = await window.requestChatReply(q, window.currentAgent || 'neo');
+          displayResponse(fullText);
+        } catch (err) {
+          console.error('Agent chat request failed, using local response:', err);
+          const fallback = localAgentResponses[window.currentAgent] || localAgentResponses.neo;
+          displayResponse(fallback(q));
+        }
+
+        function displayResponse(fullText) {
+          document.getElementById(typingId)?.remove();
+          const bubble = window.appendAgentMsg('', 'ai', icon);
+          const words = String(fullText).split(' ');
+          let i = 0;
+          const stream = setInterval(() => {
+            if (i >= words.length) {
+              clearInterval(stream);
+              bubble.classList.add('stream-done');
+              return;
+            }
+            bubble.textContent += (i === 0 ? '' : ' ') + words[i++];
+            document.getElementById('agent-chat-log').scrollTop = 99999;
+          }, 15);
+        }
+      };
+
+      document.querySelectorAll('.agent-card').forEach((card) => {
+        card.setAttribute('tabindex', '0');
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            card.click();
+          }
+        });
+      });
+    })();
+  </script>
 </body>
 
 </html>

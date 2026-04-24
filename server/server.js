@@ -171,7 +171,10 @@ async function buildChatReply(agent, message) {
 
     case 'neo':
       if (q.includes('plan') || q.includes('routine') || q.includes('schedule')) {
-        response = 'Neo (Tutor Bot): Optimized learning path generated. I recommend a staggered repetition model for next week. Mon/Wed: Direct instruction. Tue/Thu: Active recall labs. I have already synced this with the student calendars.';
+        const morningFocus = q.includes('math') ? 'Mathematics problem-solving' : q.includes('science') ? 'Science concept review' : 'Core subject revision';
+        const middayFocus = q.includes('exam') ? 'Timed practice and past-paper work' : q.includes('weak') ? 'Weak-area drills and guided correction' : 'Practice sets and active recall';
+        const eveningFocus = q.includes('class 10') ? 'Grade 10 homework and recap' : q.includes('class 12') ? 'Board-exam depth revision' : 'Reflection and next-day planning';
+        response = `Neo (Tutor Bot): I generated a practical routine for "${message}". 6:30 AM - 7:00 AM: Light review and daily goals. 7:00 AM - 8:00 AM: ${morningFocus}. 4:00 PM - 5:00 PM: ${middayFocus}. 5:15 PM - 6:00 PM: Flashcards and revision. 7:00 PM - 8:00 PM: ${eveningFocus}. 8:00 PM - 8:20 PM: Quick recap and tomorrow plan.`;
       } else if (q.includes('teach') || q.includes('suggest')) {
         response = "Neo: For the current topic, I suggest the Feynman Technique. I can generate simplified analogies for the complex concepts to help the lower-quartile students catch up. Would you like the Einstein-Simple explanation pack?";
       } else {
