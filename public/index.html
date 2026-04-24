@@ -3281,13 +3281,53 @@
         const morningFocus = ql.includes('math') ? 'Mathematics problem-solving' : ql.includes('science') ? 'Science concept review' : 'Core subject revision';
         const middayFocus = ql.includes('exam') ? 'Timed practice and past-paper work' : ql.includes('weak') ? 'Weak-area drills and guided correction' : 'Practice sets and active recall';
         const eveningFocus = ql.includes('class 10') ? 'Grade 10 homework and recap' : ql.includes('class 12') ? 'Board-exam depth revision' : 'Reflection, recap, and planning';
+        const chapterBlock = ql.includes('acid') || ql.includes('base') || ql.includes('salt')
+          ? `## Chapter Breakdown
+- Day 1: Meaning of acids, bases, and indicators.
+- Day 2: Natural indicators, olfactory indicators, and lab identification questions.
+- Day 3: Chemical properties of acids and bases with important reactions.
+- Day 4: Salt formation, common salts, and their uses.
+- Day 5: pH scale, strength, and real-life applications.
+- Day 6: Baking soda, washing soda, bleaching powder, and plaster of Paris.
+- Day 7: Full revision and one chapter test.`
+          : `## Chapter Breakdown
+- Day 1: Read the chapter and mark key concepts.
+- Day 2: Learn definitions and core ideas.
+- Day 3: Solve basic questions.
+- Day 4: Practice application questions.
+- Day 5: Revise weak areas.
+- Day 6: Solve a timed worksheet.
+- Day 7: Full chapter revision.`;
 
-        return `Neo: I generated a practical routine for "${q}".\n\n6:30 AM - 7:00 AM: Light review and daily goals\n7:00 AM - 8:00 AM: ${morningFocus}\n4:00 PM - 5:00 PM: ${middayFocus}\n5:15 PM - 6:00 PM: Short break plus revision flashcards\n7:00 PM - 8:00 PM: ${eveningFocus}\n8:00 PM - 8:20 PM: Quick recap and tomorrow plan\n\nIf you want, I can turn this into a morning-only, school-day, or exam-week routine next.`;
+        return `## Daily Routine
+- 6:30 AM - 7:00 AM: Light review and daily goals
+- 7:00 AM - 8:00 AM: ${morningFocus}
+- 4:00 PM - 5:00 PM: ${middayFocus}
+- 5:15 PM - 6:00 PM: Short break plus revision flashcards
+- 7:00 PM - 8:00 PM: ${eveningFocus}
+- 8:00 PM - 8:20 PM: Quick recap and tomorrow plan
+
+${chapterBlock}
+
+## Practice Plan
+- Solve 10 textbook questions daily.
+- Practice 5 concept questions and 5 short-answer questions.
+- Take a 30-minute self-test on Day 4 and Day 7.
+- Maintain an error notebook and revise it the next morning.
+
+## Study Tips
+- Learn definitions and reactions in one-line notes.
+- Revise indicators, pH, and uses of salts repeatedly.
+- Use flashcards for formulas and examples.
+- End each study session by explaining the topic in your own words.`;
       }
 
       const localAgentResponses = {
         adam(q) {
           const ql = String(q).toLowerCase();
+          if (/(routine|study plan|schedule|timetable|cbse|chapter|class\s*9|class\s*10|acid|base|salt)/.test(ql)) {
+            return buildRoutineReply(q);
+          }
           if (ql.includes('weak') || ql.includes('gap') || ql.includes('struggl')) {
             return `Adam: I found the main weak areas for "${q}".\n\n1. Calculus Integration\n2. Trigonometry identities\n3. Multi-step algebra simplification\n\nNext step: run a short diagnostic quiz, then group students by the exact concept they are missing.`;
           }

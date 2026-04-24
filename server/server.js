@@ -218,6 +218,21 @@ async function buildChatReply(agent, message) {
         const chapterName = q.includes('acid') || q.includes('base') || q.includes('salt')
           ? 'Acids, Bases and Salts'
           : 'the requested chapter';
+        const chapterBreakdown = q.includes('acid') || q.includes('base') || q.includes('salt')
+          ? `- Day 1: Meaning of acids, bases, and indicators.
+- Day 2: Natural indicators, olfactory indicators, and identification-based questions.
+- Day 3: Chemical properties of acids and bases with key reactions.
+- Day 4: Salt formation, common salts, and important examples.
+- Day 5: pH scale, strength of acids and bases, and applications.
+- Day 6: Baking soda, washing soda, bleaching powder, and plaster of Paris.
+- Day 7: Full chapter revision and one timed test.`
+          : `- Day 1: Read the chapter and mark key concepts.
+- Day 2: Learn definitions and formulas.
+- Day 3: Solve basic questions.
+- Day 4: Solve application questions.
+- Day 5: Revise weak areas.
+- Day 6: Solve one timed worksheet.
+- Day 7: Full revision and self-test.`;
         response = `## Daily Routine
 - 6:30 AM - 7:00 AM: Revise yesterday's notes and key definitions from ${chapterName}.
 - 7:00 AM - 8:00 AM: Read the textbook section for ${subject} and make short notes.
@@ -227,13 +242,7 @@ async function buildChatReply(agent, message) {
 - 8:00 PM - 8:20 PM: Write a quick recap of what was learned and mark doubts.
 
 ## Chapter Breakdown
-- Day 1: Meaning of acids and bases, indicators, examples from daily life.
-- Day 2: Natural indicators, olfactory indicators, and how to identify acidic and basic substances.
-- Day 3: Chemical properties of acids and bases, important reactions, and observation-based questions.
-- Day 4: How salts are formed, common salts, and uses of salts in real life.
-- Day 5: pH scale, strength of acids and bases, and applications of pH.
-- Day 6: Important compounds in the chapter such as baking soda, washing soda, bleaching powder, and plaster of Paris.
-- Day 7: Full chapter revision for ${classLabel} ${subject}.
+${chapterBreakdown}
 
 ## Practice Plan
 - Solve 10 NCERT in-text and back-exercise questions daily.
@@ -369,8 +378,8 @@ app.post('/api/students', authMiddleware, async (req, res) => {
 // ─── AI Chat Endpoint ────────────────────────────────────────────────────────
 app.post('/api/chat', async (req, res) => {
   try {
-    const { agent, message } = req.body || {};
-    const trimmedMessage = String(message || '').trim();
+    const { agent: reqAgent, message: reqMessage } = req.body || {};
+    const trimmedMessage = String(reqMessage || '').trim();
 
     if (!trimmedMessage) {
       return res.status(400).json({ error: 'Message is required' });
@@ -386,6 +395,16 @@ app.post('/api/chat', async (req, res) => {
 
 app.post('/api/ai/chat', async (req, res) => {
   try {
+    const { agent: reqAgent, message: reqMessage } = req.body || {};
+    const trimmedMessage = String(reqMessage || '').trim();
+    if (!trimmedMessage) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    const resolvedAgent = resolveAgent(reqAgent, trimmedMessage);
+    const directResponse = await buildChatReply(resolvedAgent, trimmedMessage);
+    return res.json({ response: directResponse, agent: resolvedAgent, timestamp: new Date() });
+
     const { agent, message } = req.body;
     const q = (message || '').toLowerCase();
     const anthropicReply = await getAnthropicChatResponse(agent, message || '');
